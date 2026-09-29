@@ -2,13 +2,15 @@
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import IphoneMockup from '../../../components/IphoneMockup.astro';
+import DevicePreview from '../../../components/DevicePreview.astro';
 import TechBadge from '../../../components/TechBadge.astro';
 import { isLang, useTranslations } from '../../../i18n/utils';
 import type { Lang } from '../../../i18n/ui';
 import {
   firstScreenshot,
   getPublishedProjects,
+  mockupAltKey,
+  platformLabelKey,
   projectLang,
   projectSlug,
 } from '../../../lib/projects';
@@ -37,7 +39,9 @@ const t = useTranslations(lang);
 const { Content } = await render(entry);
 const shot = firstScreenshot(entry);
 const listHref = `${getRelativeLocaleUrl(lang, '/')}#projects`;
-const { title, summary, period, role, stack, highlights, links } = entry.data;
+const { title, summary, period, role, stack, highlights, links, platform } = entry.data;
+const isWeb = platform === 'web';
+const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
 ---
 
 <BaseLayout
@@ -50,9 +54,24 @@ const { title, summary, period, role, stack, highlights, links } = entry.data;
     <a class="text-muted hover:text-ink" href={listHref}>{t('backToList')}</a>
   </p>
 
-  <article class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+  <article
+    class:list={[
+      isWeb ? 'space-y-8' : 'grid gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start',
+    ]}
+  >
+    {
+      isWeb && (
+        <DevicePreview
+          class={frameClass}
+          platform={platform}
+          src={shot?.src}
+          alt={shot?.alt ?? t(mockupAltKey(platform))}
+        />
+      )
+    }
     <div class="space-y-6">
       <header class="space-y-3">
+        <p class="text-xs font-medium tracking-wide text-muted">{t(platformLabelKey(platform))}</p>
         <h1 class="text-3xl font-semibold tracking-tight">{title}</h1>
         <p class="text-muted">{summary}</p>
         <dl class="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted">
@@ -125,11 +144,16 @@ const { title, summary, period, role, stack, highlights, links } = entry.data;
       </div>
     </div>
 
-    <IphoneMockup
-      class="w-40 sm:w-52"
-      src={shot?.src}
-      alt={shot?.alt ?? t('heroMockupAlt')}
-    />
+    {
+      !isWeb && (
+        <DevicePreview
+          class={frameClass}
+          platform={platform}
+          src={shot?.src}
+          alt={shot?.alt ?? t(mockupAltKey(platform))}
+        />
+      )
+    }
   </article>
 </BaseLayout>
 

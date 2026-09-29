@@ -49,3 +49,21 @@ export async function getPublishedProjects(): Promise<ProjectEntry[]> {
 export function firstScreenshot(entry: ProjectEntry): { src: string; alt: string } | undefined {
   return entry.data.appScreenshots?.[0];
 }
+
+export function platformLabelKey(
+  platform: ProjectEntry['data']['platform'],
+): 'platformIos' | 'platformAndroid' | 'platformWeb' {
+  if (platform === 'android') {
+    return 'platformAndroid';
+  }
+  if (platform === 'web') {
+    return 'platformWeb';
+  }
+  return 'platformIos';
+}
+
+export function mockupAltKey(
+  platform: ProjectEntry['data']['platform'],
+): 'heroMockupAlt' | 'webMockupAlt' {
+  return platform === 'web' ? 'webMockupAlt' : 'heroMockupAlt';
+}

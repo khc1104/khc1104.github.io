@@ -2,16 +2,23 @@
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import ProjectCard from './ProjectCard.astro';
 import type { Lang } from '../i18n/ui';
-import { firstScreenshot, projectSlug, type ProjectEntry } from '../lib/projects';
+import { useTranslations } from '../i18n/utils';
+import {
+  firstScreenshot,
+  mockupAltKey,
+  platformLabelKey,
+  projectSlug,
+  type ProjectEntry,
+} from '../lib/projects';
 
 interface Props {
   lang: Lang;
   projects: ProjectEntry[];
   emptyLabel: string;
-  screenshotAlt: string;
 }
 
-const { lang, projects, emptyLabel, screenshotAlt } = Astro.props;
+const { lang, projects, emptyLabel } = Astro.props;
+const t = useTranslations(lang);
 ---
 
 {
@@ -22,14 +29,17 @@ const { lang, projects, emptyLabel, screenshotAlt } = Astro.props;
       {projects.map((project) => {
         const shot = firstScreenshot(project);
         const slug = projectSlug(project.id);
+        const platform = project.data.platform;
         return (
           <ProjectCard
             title={project.data.title}
             summary={project.data.summary}
             stack={project.data.stack}
             href={getRelativeLocaleUrl(lang, `/projects/${slug}`)}
+            platform={platform}
+            platformLabel={t(platformLabelKey(platform))}
             screenshotSrc={shot?.src}
-            screenshotAlt={shot?.alt ?? screenshotAlt}
+            screenshotAlt={shot?.alt ?? t(mockupAltKey(platform))}
           />
         );
       })}

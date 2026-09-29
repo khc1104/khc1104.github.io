@@ -1,0 +1,42 @@
+---
+interface Props {
+  src?: string;
+  alt: string;
+  class?: string;
+}
+
+const { src, alt, class: className } = Astro.props;
+---
+
+<figure
+  class:list={['android-mockup mx-auto w-44 shrink-0 sm:w-52', className]}
+  aria-label={src ? undefined : alt}
+>
+  <div
+    class="relative aspect-[9/19.5] overflow-hidden rounded-[1.35rem] bg-device p-[0.4rem] shadow-lg shadow-zinc-400/40"
+  >
+    <div
+      class="absolute top-2.5 left-1/2 z-10 h-2.5 w-2.5 -translate-x-1/2 rounded-full bg-zinc-700 ring-2 ring-zinc-900"
+      aria-hidden="true"
+    >
+    </div>
+    <div class="h-full overflow-hidden rounded-[1rem] bg-device-screen">
+      {
+        src ? (
+          <img src={src} alt={alt} class="h-full w-full object-cover" />
+        ) : (
+          <>
+            <div class="iphone-mockup__placeholder h-full w-full" aria-hidden="true"></div>
+            <span class="sr-only">{alt}</span>
+          </>
+        )
+      }
+    </div>
+    <div
+      class="absolute bottom-1.5 left-1/2 flex h-1 w-16 -translate-x-1/2 justify-center"
+      aria-hidden="true"
+    >
+      <span class="h-1 w-16 rounded-full bg-zinc-400/90"></span>
+    </div>
+  </div>
+</figure>

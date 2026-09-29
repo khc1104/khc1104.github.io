@@ -51,6 +51,7 @@
 ```ts
 {
   title: string
+  platform: 'ios' | 'android' | 'web'
   summary: string
   period?: string
   role?: string
@@ -63,7 +64,7 @@
 }
 ```
 
-본문은 MDX. 언어별로 파일을 나눈다. 번역은 비즈니스 일본어(겸손·성과 수치·역할 명확). 회사 id는 프로젝트 파일에 두지 않는다. 지원 페이지가 `projectSlugs`로 작품을 고른다.
+본문은 MDX. 언어별로 파일을 나눈다. 번역은 비즈니스 일본어(겸손·성과 수치·역할 명확). 회사 id는 프로젝트 파일에 두지 않는다. 지원 페이지가 `projectSlugs`로 작품을 고른다. `platform`이 카드·상세의 기기 프레임(아이폰 / 안드로이드 / 브라우저)을 고른다.
 
 ---
 

@@ -1,0 +1,25 @@
+---
+import AndroidMockup from './AndroidMockup.astro';
+import BrowserMockup from './BrowserMockup.astro';
+import IphoneMockup from './IphoneMockup.astro';
+import type { ProjectPlatform } from '../lib/platform';
+
+interface Props {
+  platform: ProjectPlatform;
+  src?: string;
+  alt: string;
+  class?: string;
+}
+
+const { platform, src, alt, class: className } = Astro.props;
+---
+
+{
+  platform === 'web' ? (
+    <BrowserMockup class={className} src={src} alt={alt} />
+  ) : platform === 'android' ? (
+    <AndroidMockup class={className} src={src} alt={alt} />
+  ) : (
+    <IphoneMockup class={className} src={src} alt={alt} />
+  )
+}
