@@ -1,3 +1,22 @@
 ---
-return Astro.redirect('/ko/');
+const dest = '/ko/';
+const canonical = new URL(dest, Astro.site).href;
 ---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content={`0;url=${dest}`} />
+    <link rel="canonical" href={canonical} />
+    <title>권희철</title>
+    <script is:inline define:vars={{ dest }}>
+      location.replace(dest);
+    </script>
+  </head>
+  <body>
+    <p><a href={dest}>한국어 홈으로 이동</a></p>
+  </body>
+</html>
