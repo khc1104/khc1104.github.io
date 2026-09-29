@@ -40,7 +40,12 @@ const listHref = `${getRelativeLocaleUrl(lang, '/')}#projects`;
 const { title, summary, period, role, stack, highlights, links } = entry.data;
 ---
 
-<BaseLayout lang={lang} title={`${title} · ${t('siteName')}`}>
+<BaseLayout
+  lang={lang}
+  title={`${title} · ${t('siteName')}`}
+  description={summary}
+  image={shot?.src}
+>
   <p class="mb-8 text-sm">
     <a class="text-muted hover:text-ink" href={listHref}>{t('backToList')}</a>
   </p>

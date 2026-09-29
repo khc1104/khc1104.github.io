@@ -38,6 +38,8 @@ export const ui = {
     roleLabel: '역할',
     highlightsLabel: '포인트',
     footer: '© 2026',
+    notFoundTitle: '페이지를 찾을 수 없습니다',
+    notFoundBody: '주소가 바뀌었거나 없습니다.',
   },
   ja: {
     siteName: '権熙哲',
@@ -69,5 +71,7 @@ export const ui = {
     roleLabel: '担当',
     highlightsLabel: 'ポイント',
     footer: '© 2026',
+    notFoundTitle: 'ページが見つかりません',
+    notFoundBody: 'アドレスが変わったか、存在しません。',
   },
 } as const;

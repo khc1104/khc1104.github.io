@@ -34,7 +34,12 @@ const heroSource = featured[0] ?? projects[0];
 const heroShot = heroSource ? firstScreenshot(heroSource) : undefined;
 ---
 
-<BaseLayout lang={lang} title={`${t('heroTitle')} · ${t('siteName')}`}>
+<BaseLayout
+  lang={lang}
+  title={`${t('heroTitle')} · ${t('siteName')}`}
+  description={t('heroBody')}
+  image={heroShot?.src}
+>
   <section
     class="grid items-center gap-10 sm:grid-cols-[minmax(0,1fr)_auto]"
     aria-labelledby="hero-heading"
