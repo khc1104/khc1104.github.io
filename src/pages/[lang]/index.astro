@@ -6,7 +6,8 @@ import TechBadge from '../../components/TechBadge.astro';
 import ProjectGrid from '../../components/ProjectGrid.astro';
 import { isLang, locales, useTranslations } from '../../i18n/utils';
 import type { Lang } from '../../i18n/ui';
-import { placeholderProjects, stackLabels } from '../../data/placeholder-projects';
+import { stackLabels } from '../../data/stack';
+import { getProjectsByLang } from '../../lib/projects';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -20,6 +21,7 @@ if (!langParam || !isLang(langParam)) {
 
 const lang: Lang = langParam;
 const t = useTranslations(lang);
+const projects = await getProjectsByLang(lang);
 ---
 
 <BaseLayout lang={lang} title={`${t('heroTitle')} · ${t('siteName')}`}>
@@ -53,7 +55,7 @@ const t = useTranslations(lang);
     />
     <ProjectGrid
       lang={lang}
-      projects={placeholderProjects}
+      projects={projects}
       emptyLabel={t('emptyProjects')}
       targetLabel={t('targetLabel')}
       screenshotAlt={t('heroMockupAlt')}

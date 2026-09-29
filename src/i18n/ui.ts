@@ -26,6 +26,10 @@ export const ui = {
     emptyProjects: '표시할 프로젝트가 없습니다.',
     heroMockupAlt: '앱 화면 미리보기',
     targetLabel: '타깃',
+    backToList: '프로젝트 목록',
+    periodLabel: '기간',
+    roleLabel: '역할',
+    highlightsLabel: '포인트',
     footer: '© 2026',
   },
   ja: {
@@ -46,6 +50,10 @@ export const ui = {
     emptyProjects: '表示できるプロジェクトがありません。',
     heroMockupAlt: 'アプリ画面のプレビュー',
     targetLabel: 'ターゲット',
+    backToList: 'プロジェクト一覧',
+    periodLabel: '期間',
+    roleLabel: '担当',
+    highlightsLabel: 'ポイント',
     footer: '© 2026',
   },
 } as const;

@@ -15,3 +15,18 @@ export function useTranslations(lang: Lang) {
 export function otherLang(lang: Lang): Lang {
   return lang === 'ko' ? 'ja' : 'ko';
 }
+
+export function pathWithoutLocale(pathname: string, lang: Lang): string {
+  const prefix = `/${lang}`;
+  if (pathname === prefix || pathname === `${prefix}/`) {
+    return '/';
+  }
+  if (pathname.startsWith(`${prefix}/`)) {
+    const rest = pathname.slice(prefix.length);
+    if (rest.length > 1 && rest.endsWith('/')) {
+      return rest.slice(0, -1);
+    }
+    return rest || '/';
+  }
+  return pathname;
+}

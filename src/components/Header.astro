@@ -1,7 +1,7 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import type { Lang } from '../i18n/ui';
-import { otherLang, useTranslations } from '../i18n/utils';
+import { otherLang, pathWithoutLocale, useTranslations } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
@@ -11,7 +11,8 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const next = otherLang(lang);
 const homeHref = getRelativeLocaleUrl(lang, '/');
-const switchHref = getRelativeLocaleUrl(next, '/');
+const projectsHref = `${homeHref}#projects`;
+const switchHref = getRelativeLocaleUrl(next, pathWithoutLocale(Astro.url.pathname, lang));
 ---
 
 <header class="border-b border-line bg-white">
@@ -19,7 +20,7 @@ const switchHref = getRelativeLocaleUrl(next, '/');
     <a class="font-semibold tracking-tight" href={homeHref}>{t('siteName')}</a>
     <nav class="flex items-center gap-4 text-sm">
       <a class="text-muted hover:text-ink" href={homeHref}>{t('navHome')}</a>
-      <a class="text-muted hover:text-ink" href="#projects">{t('navProjects')}</a>
+      <a class="text-muted hover:text-ink" href={projectsHref}>{t('navProjects')}</a>
       <a
         class="rounded-full border border-zinc-300 px-3 py-1 text-zinc-700 hover:border-zinc-500"
         href={switchHref}

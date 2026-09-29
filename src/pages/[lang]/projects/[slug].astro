@@ -1,0 +1,119 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import IphoneMockup from '../../../components/IphoneMockup.astro';
+import TechBadge from '../../../components/TechBadge.astro';
+import { isLang, useTranslations } from '../../../i18n/utils';
+import type { Lang } from '../../../i18n/ui';
+import {
+  firstScreenshot,
+  getPublishedProjects,
+  projectLang,
+  projectSlug,
+} from '../../../lib/projects';
+
+export async function getStaticPaths() {
+  const projects = await getPublishedProjects();
+  return projects.flatMap((entry) => {
+    const lang = projectLang(entry.id);
+    const slug = projectSlug(entry.id);
+    if (!isLang(lang) || !slug) {
+      return [];
+    }
+    return [{ params: { lang, slug }, props: { entry } }];
+  });
+}
+
+const { lang: langParam } = Astro.params;
+const { entry } = Astro.props;
+
+if (!langParam || !isLang(langParam)) {
+  return Astro.redirect('/404');
+}
+
+const lang: Lang = langParam;
+const t = useTranslations(lang);
+const { Content } = await render(entry);
+const shot = firstScreenshot(entry);
+const listHref = `${getRelativeLocaleUrl(lang, '/')}#projects`;
+const { title, summary, period, role, stack, targets, highlights } = entry.data;
+---
+
+<BaseLayout lang={lang} title={`${title} · ${t('siteName')}`}>
+  <p class="mb-8 text-sm">
+    <a class="text-muted hover:text-ink" href={listHref}>{t('backToList')}</a>
+  </p>
+
+  <article class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+    <div class="space-y-6">
+      <header class="space-y-3">
+        <h1 class="text-3xl font-semibold tracking-tight">{title}</h1>
+        <p class="text-muted">{summary}</p>
+        <dl class="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted">
+          {
+            period && (
+              <div>
+                <dt class="inline font-medium text-ink">{t('periodLabel')}: </dt>
+                <dd class="inline">{period}</dd>
+              </div>
+            )
+          }
+          {
+            role && (
+              <div>
+                <dt class="inline font-medium text-ink">{t('roleLabel')}: </dt>
+                <dd class="inline">{role}</dd>
+              </div>
+            )
+          }
+        </dl>
+        <div class="flex flex-wrap gap-1.5">
+          {stack.map((label) => <TechBadge label={label} />)}
+        </div>
+        {
+          targets.length > 0 && (
+            <p class="text-xs text-muted">
+              <span class="font-medium text-ink">{t('targetLabel')}: </span>
+              {targets.join(', ')}
+            </p>
+          )
+        }
+      </header>
+
+      {
+        highlights && highlights.length > 0 && (
+          <section aria-labelledby="highlights-heading">
+            <h2 id="highlights-heading" class="text-lg font-semibold">
+              {t('highlightsLabel')}
+            </h2>
+            <ul class="mt-2 list-disc space-y-1 pl-5 text-muted">
+              {highlights.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <div class="project-body space-y-4 text-muted">
+        <Content />
+      </div>
+    </div>
+
+    <IphoneMockup
+      class="w-40 sm:w-52"
+      src={shot?.src}
+      alt={shot?.alt ?? t('heroMockupAlt')}
+    />
+  </article>
+</BaseLayout>
+
+<style>
+  .project-body :global(h2) {
+    color: var(--color-ink);
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+</style>

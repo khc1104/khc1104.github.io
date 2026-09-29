@@ -1,11 +1,12 @@
 ---
+import { getRelativeLocaleUrl } from 'astro:i18n';
 import ProjectCard from './ProjectCard.astro';
 import type { Lang } from '../i18n/ui';
-import type { PlaceholderProject } from '../data/placeholder-projects';
+import { firstScreenshot, projectSlug, type ProjectEntry } from '../lib/projects';
 
 interface Props {
   lang: Lang;
-  projects: PlaceholderProject[];
+  projects: ProjectEntry[];
   emptyLabel: string;
   targetLabel: string;
   screenshotAlt: string;
@@ -19,16 +20,22 @@ const { lang, projects, emptyLabel, targetLabel, screenshotAlt } = Astro.props;
     <p class="text-muted">{emptyLabel}</p>
   ) : (
     <div class="grid gap-5 md:grid-cols-2">
-      {projects.map((project) => (
-        <ProjectCard
-          title={project.title[lang]}
-          summary={project.summary[lang]}
-          stack={project.stack}
-          targets={project.targets}
-          screenshotAlt={screenshotAlt}
-          targetLabel={targetLabel}
-        />
-      ))}
+      {projects.map((project) => {
+        const shot = firstScreenshot(project);
+        const slug = projectSlug(project.id);
+        return (
+          <ProjectCard
+            title={project.data.title}
+            summary={project.data.summary}
+            stack={project.data.stack}
+            targets={project.data.targets}
+            href={getRelativeLocaleUrl(lang, `/projects/${slug}`)}
+            screenshotSrc={shot?.src}
+            screenshotAlt={shot?.alt ?? screenshotAlt}
+            targetLabel={targetLabel}
+          />
+        );
+      })}
     </div>
   )
 }
