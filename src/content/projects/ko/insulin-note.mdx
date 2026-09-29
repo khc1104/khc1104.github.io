@@ -1,0 +1,53 @@
+---
+title: Insulin Note
+summary: 인슐린 투여 기록 입력 뎁스를 5단계에서 1단계로 줄인 iOS 위젯 앱
+period: "2024.07.15 ~ 2026.04.26"
+role: 개인 개발
+stack:
+  - Swift
+  - SwiftUI
+  - SwiftData
+  - WidgetKit
+  - AppIntents
+featured: true
+appScreenshots:
+  - src: /projects/insulin-note/cover.png
+    alt: Insulin Note 메인 화면
+  - src: /projects/insulin-note/screen.png
+    alt: Insulin Note 기록 화면
+links:
+  github: https://github.com/khc1104/InsulinNote
+  store: https://apps.apple.com/kr/app/%EC%9D%B8%EC%8A%90%EB%A6%B0%EB%85%B8%ED%8A%B8/id6763216913
+---
+
+## 문제
+
+제1형 당뇨로 지효성·속효성 인슐린을 맞습니다. 지효성은 저녁 10–11시에 투여하는데, 취침이 그보다 늦어 그날 맞았는지 잊어버리는 일이 있었습니다. 쓰던 CGM 앱에서 투여를 남기려면 입력이 5단계 이상이었습니다.
+
+## 역할
+
+개인 개발. 기획부터 App Store 배포까지 맡았습니다. iOS 17 이상이며, SwiftData와 AppIntents를 쓰기 위한 최소 버전입니다.
+
+SwiftData는 로컬에서 기록을 빠르게 다루기 위해 골랐고, 이후 iCloud 연동을 열어 둘 수 있습니다. WidgetKit·AppIntents는 앱을 열지 않고 홈·잠금 화면에서 투여 여부와 기록을 남기기 위해 썼습니다.
+
+## 기능과 성과
+
+- 홈 화면 위젯에서 빠른 투여 기록, 잠금 화면 위젯에서 최신 투여 시각 확인
+- 지효성·속효성 기록, 수정·삭제
+- 달력에서 지효성 투여일·복약률·평균 투여 시각, 속효성 패턴 차트
+- 2026-07-19 기준 App Store 다운로드 16건
+- 잠금 화면에서 지효성 투여를 확인한 뒤 맞는 루틴을 만들어, 맞았는지 몰라 생기는 걱정을 줄였습니다
+
+## 문제 해결
+
+### ModelContext를 앱과 위젯이 나눠 쓰던 문제
+
+위젯에서 투여를 남기면 메인 앱 UI와 저장소에 반영되지 않았습니다. AppIntent는 View가 아니라 `@Environment(\.modelContext)`를 받을 수 없고, 따로 만든 ModelContext에서 `save()`가 빠져 메모리에만 남았습니다.
+
+위젯과 앱이 같은 컨텍스트를 보도록 ModelContext를 한곳으로 모으고 `save()`를 명시했습니다. 이후 Swift 6에서 같은 컨텍스트를 여러 스레드가 건드리면 경쟁이 생길 수 있어 `ModelActor`로 바꿨고, CRUD를 Actor 안에서만 돌리게 했습니다. View에서 캡처한 모델이 Task 안에서 해제되며 크래시가 나, Task에 들어가기 전에 필요한 값만 복사해 넘겼습니다.
+
+### View 책임이 꼬인 문제
+
+RecordView 최상위, 인슐린별 하위 뷰, 투여량 시트가 `@Binding`과 클로저로 얽혀 있었습니다. 하위 뷰가 시트에 넘길 로직과 기본 투여량까지 알고 있었습니다.
+
+SwiftData에 맞춘 MV로 고쳤습니다. 상태와 로직은 최상위 뷰만 갖고, 하위 뷰는 받은 데이터를 그리고 클로저만 호출합니다. 시트도 부모가 준 데이터로 초기화하고, 끝나면 부모 클로저를 실행합니다. `@Binding` 체인을 줄여 수정할 때 부모만 보면 되게 했습니다.

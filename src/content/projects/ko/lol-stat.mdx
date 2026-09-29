@@ -1,0 +1,20 @@
+---
+title: LolStat
+summary: Riot API 전적 검색과 JWT 기반 듀오 매칭을 TCA로 학습·구현한 앱
+period: "개인 / 학습 프로젝트"
+role: 개인 개발
+stack:
+  - Swift
+  - SwiftUI
+  - TCA
+  - JWT
+  - Keychain
+links:
+  github: https://github.com/khc1104/LolStat_Ios
+---
+
+Riot Games API로 소환사 전적을 검색하고, JWT 인증으로 듀오를 찾는 커뮤니티를 한 앱에 담았습니다. SwiftUI와 TCA(단방향 데이터 흐름)를 익히기 위한 개인 학습 프로젝트입니다.
+
+## 담당
+
+기획·설계·구현 전반을 맡았습니다. 토큰은 Keychain에 두고, Access Token이 만료되면 Refresh 후 원래 요청을 클로저로 다시 보내 흐름이 끊기지 않게 했습니다.

@@ -1,0 +1,53 @@
+---
+title: Insulin Note
+summary: インスリン投与記録の入力を5ステップから1ステップに減らしたiOSウィジェットアプリ
+period: "2024.07.15 ~ 2026.04.26"
+role: 個人開発
+stack:
+  - Swift
+  - SwiftUI
+  - SwiftData
+  - WidgetKit
+  - AppIntents
+featured: true
+appScreenshots:
+  - src: /projects/insulin-note/cover.png
+    alt: Insulin Noteのメイン画面
+  - src: /projects/insulin-note/screen.png
+    alt: Insulin Noteの記録画面
+links:
+  github: https://github.com/khc1104/InsulinNote
+  store: https://apps.apple.com/kr/app/%EC%9D%B8%EC%8A%90%EB%A6%B0%EB%85%B8%ED%8A%B8/id6763216913
+---
+
+## 問題
+
+1型糖尿病のため、持効型と速効型のインスリンを使っています。持効型は夜10–11時に打ちますが、就寝はその後なので、その日打ったかどうかを忘れることがありました。使っていたCGMアプリでは、投与記録に5ステップ以上かかっていました。
+
+## 担当
+
+個人開発です。企画からApp Store公開まで担当しました。iOS 17以上で、SwiftDataとAppIntentsを使うための下限です。
+
+SwiftDataは端末内で記録を速く扱うために選び、あとからiCloud連携を足せる余地を残しました。WidgetKitとAppIntentsは、アプリを開かずにホーム画面やロック画面で投与の有無と記録を残すために使いました。
+
+## 機能と成果
+
+- ホーム画面ウィジェットから投与を記録し、ロック画面ウィジェットで直近の投与時刻を確認
+- 持効型・速効型の記録、修正と削除
+- カレンダーで持効型の投与日・服薬率・平均投与時刻、速効型のパターンチャート
+- 2026-07-19時点のApp Storeダウンロードは16件
+- ロック画面で持効型の記録を確認してから打つ流れを作り、打ったかどうか分からない不安を減らしました
+
+## 問題解決
+
+### アプリとウィジェットでModelContextが分かれていた問題
+
+ウィジェットから投与を残しても、本体アプリのUIと保存先に反映されませんでした。AppIntentはViewではないため `@Environment(\.modelContext)` を受け取れず、別途作ったModelContextで `save()` が抜け、変更がメモリ上だけに残っていました。
+
+ウィジェットとアプリが同じコンテキストを見るようModelContextを一箇所にまとめ、`save()` を明示しました。その後Swift 6では、同じコンテキストへ複数スレッドから触ると競合し得るため `ModelActor` に替え、CRUDはActorの中だけで回すようにしました。ViewでキャプチャしたモデルがTask内で解放されてクラッシュしたため、Taskに入る前に必要な値だけコピーして渡す形にしました。
+
+### Viewの責任が絡まっていた問題
+
+RecordViewの最上位、インスリン別の下位ビュー、投与量シートが `@Binding` とクロージャで絡んでいました。下位ビューがシートへ渡すロジックと既定投与量まで知っていました。
+
+SwiftDataに合わせたMVに直しました。状態とロジックは最上位ビューだけが持ち、下位ビューは受け取ったデータを描画し、クロージャを呼ぶだけです。シートも親が渡したデータで初期化し、完了時は親のクロージャを実行します。`@Binding` の連鎖を減らし、修正時は親だけ見れば足りるようにしました。

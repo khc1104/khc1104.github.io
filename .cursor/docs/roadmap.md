@@ -237,6 +237,7 @@ Phase 0 → 1 → 2 → 3 → 4 → 5
 | 1 Astro·i18n | 완료 | 2026-09-29 | [2026-09-29-astro-i18n.md](./2026-09-29-astro-i18n.md) |
 | 2 UI 컴포넌트 | 완료 | 2026-09-29 | [2026-09-29-ui-components.md](./2026-09-29-ui-components.md) |
 | 3 MDX·번역 | 완료 | 2026-09-29 | [2026-09-29-mdx-projects.md](./2026-09-29-mdx-projects.md) |
+| 3 보강 노션 실글 | 완료 | 2026-09-29 | [2026-09-29-notion-content.md](./2026-09-29-notion-content.md) |
 | 4 기업 타깃 | 대기 | | |
 | 5 배포·SEO | 대기 | | |
 

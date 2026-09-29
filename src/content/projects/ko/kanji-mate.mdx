@@ -1,0 +1,58 @@
+---
+title: KanjiMate
+summary: 일본어 ebook·뉴스 스크린샷에서 한자 단어를 OCR·형태소로 뽑아 Live Activity로 보여 주는 학습 보조 앱
+period: "2026.07.03 ~ 진행 중"
+role: 개인 개발
+stack:
+  - Swift
+  - SwiftUI
+  - SwiftData
+  - Vision
+  - WidgetKit
+  - AppIntents
+  - ActivityKit
+featured: true
+---
+
+## 문제
+
+히라가나·가타카나는 읽을 수 있는데, 원서나 뉴스에서 한자가 나오면 사전 앱을 켜고 획을 세거나 복사하느라 읽기가 끊겼습니다. 당장 읽는 것을 도우면서 한자 읽기를 남기고 싶었습니다.
+
+핵심 파이프라인은 스크린샷 → OCR → 형태소(한자 lemma) → 번역(JA→KO) → 저장·위젯입니다. 성공 지표는 문장 전체 완벽 OCR이 아니라 **한자 ±3 컨텍스트 윈도우 재현율**입니다.
+
+## 역할
+
+개인 개발. iOS 18 이상이며, 온디바이스 Translation과 AppIntent·Live Activity 스택을 기준으로 잡았습니다. OCR 품질은 시뮬레이터가 아니라 실기기 fixture로 재봅니다.
+
+Vision은 일본어 OCR, Natural Language는 lemma·품사, SwiftData와 App Group은 앱·AppIntent·Live Activity가 같은 저장소를 보기 위해 썼습니다. 시스템 화면 캡처는 AppIntent 단독으로 할 수 없어, 단축어로 스크린샷을 넘깁니다.
+
+## 기능과 성과
+
+- 가로(뉴스) / 세로(ebook) 레이아웃을 `fullTextQualityScore`로 나눔
+- 세로글은 90° 회전 → 열 클러스터 → 자간·행간 merge → 겹침 스티치 → Vision
+- 온디바이스 JA→KO 번역, SwiftData 단어장, Anki CSV보내기
+- Dynamic Island·잠금 화면에서 추출 단어 카드와 저장
+- 제품 지표는 교정 OFF(raw)와 짧은 고빈도 패치(corrected)를 분리해 측정 (2026-08-19 실기기)
+
+| Fixture | 도메인 | RAW | CORRECTED | 회귀 가드 |
+| --- | --- | --- | --- | --- |
+| V1 | ebook 세로 앵커 | 0.50 | 0.588 | ≥ 0.50 |
+| V2 | ebook 세로 일반화 | 0.875 | 0.875 | ≥ 0.80 |
+| H1 | 가로 뉴스 | 0.966 | 0.989 | ≥ 0.90 |
+| M1 | 만화 스모크 | 0.036 | 0.036 | ≥ 0.01 |
+
+MangaOCR CoreML은 V1 raw를 올리지 못해 제품 기본은 OFF입니다. 만화 말풍선 파이프는 아직 없고, M1은 0.0 붕괴만 보는 스모크입니다.
+
+## 문제 해결
+
+### “높은 OCR 점수”가 엔진 품질이 아니었던 문제
+
+초기에 corrected가 거의 100%처럼 보였으나, 긴 문장·고유명사 `spellingCorrections`에 기댄 점수였습니다. 교정을 끄면 raw가 급락했습니다.
+
+측정은 raw / corrected 이중 지표로 나눴고, 패치는 짧은 고빈도만 남겼습니다. 문장이나 고유명사를 통째로 바꿔 점수를 올리지 않습니다. 가드 미달이면 긴 문장 패치로 메우지 않고 해당 변경을 되돌리거나 허용 비율만 조정한 뒤 다시 잽니다.
+
+### 세로 ebook OCR — 검출 과분할과 스티치 오염
+
+Vision `characterBoxes`가 `前`처럼 내부 공백이 있는 글자, `強`처럼 좌우 부수를 여러 박스로 쪼개, 박스마다 crop·스티치하면 이상한 한자가 됐습니다.
+
+독서축·직교 glyph merge와 이전 히라가나 bleed 가드를 넣어 V1 raw를 0.24에서 0.50까지 올렸습니다. 후리가나 가짜 열·겹친 루비는 본문 스티치에서 빼, V2 raw는 0.775에서 0.875가 됐습니다. 띠 없이 지우면 V1이 0.47로 회귀해 되돌렸습니다.

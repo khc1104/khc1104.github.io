@@ -6,8 +6,14 @@ import TechBadge from '../../components/TechBadge.astro';
 import ProjectGrid from '../../components/ProjectGrid.astro';
 import { isLang, locales, useTranslations } from '../../i18n/utils';
 import type { Lang } from '../../i18n/ui';
+import { contact } from '../../data/contact';
 import { stackLabels } from '../../data/stack';
-import { getProjectsByLang } from '../../lib/projects';
+import {
+  featuredProjects,
+  firstScreenshot,
+  getProjectsByLang,
+  otherProjects,
+} from '../../lib/projects';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -22,6 +28,10 @@ if (!langParam || !isLang(langParam)) {
 const lang: Lang = langParam;
 const t = useTranslations(lang);
 const projects = await getProjectsByLang(lang);
+const featured = featuredProjects(projects);
+const others = otherProjects(projects);
+const heroSource = featured[0] ?? projects[0];
+const heroShot = heroSource ? firstScreenshot(heroSource) : undefined;
 ---
 
 <BaseLayout lang={lang} title={`${t('heroTitle')} · ${t('siteName')}`}>
@@ -30,10 +40,14 @@ const projects = await getProjectsByLang(lang);
     aria-labelledby="hero-heading"
   >
     <div class="space-y-3">
-      <h1 id="hero-heading" class="text-3xl font-semibold tracking-tight">{t('heroTitle')}</h1>
+      <h1 id="hero-heading" class="text-3xl font-semibold tracking-tight">{t('siteName')}</h1>
+      <p class="text-lg font-medium tracking-tight">{t('heroTitle')}</p>
       <p class="text-muted">{t('heroBody')}</p>
     </div>
-    <IphoneMockup alt={t('heroMockupAlt')} />
+    <IphoneMockup
+      alt={heroShot?.alt ?? t('heroMockupAlt')}
+      src={heroShot?.src}
+    />
   </section>
 
   <section class="mt-16 space-y-4" aria-labelledby="about-heading">
@@ -53,13 +67,28 @@ const projects = await getProjectsByLang(lang);
       title={t('projectsTitle')}
       description={t('projectsBody')}
     />
+    <h3 class="text-lg font-semibold tracking-tight">{t('featuredTitle')}</h3>
     <ProjectGrid
       lang={lang}
-      projects={projects}
+      projects={featured}
       emptyLabel={t('emptyProjects')}
       targetLabel={t('targetLabel')}
       screenshotAlt={t('heroMockupAlt')}
     />
+    {
+      others.length > 0 && (
+        <div class="space-y-4">
+          <h3 class="text-lg font-semibold tracking-tight">{t('otherProjectsTitle')}</h3>
+          <ProjectGrid
+            lang={lang}
+            projects={others}
+            emptyLabel={t('emptyProjects')}
+            targetLabel={t('targetLabel')}
+            screenshotAlt={t('heroMockupAlt')}
+          />
+        </div>
+      )
+    }
   </section>
 
   <section class="mt-16 space-y-4" aria-labelledby="contact-heading">
@@ -68,5 +97,22 @@ const projects = await getProjectsByLang(lang);
       title={t('contactTitle')}
       description={t('contactBody')}
     />
+    <ul class="space-y-1 text-sm">
+      <li>
+        <a class="text-ink underline-offset-4 hover:underline" href={contact.github}>
+          {t('contactGithub')}
+        </a>
+      </li>
+      <li>
+        <a class="text-ink underline-offset-4 hover:underline" href={`mailto:${contact.email}`}>
+          {t('contactEmail')} · {contact.email}
+        </a>
+      </li>
+      <li>
+        <a class="text-ink underline-offset-4 hover:underline" href={contact.store}>
+          {t('contactStore')}
+        </a>
+      </li>
+    </ul>
   </section>
 </BaseLayout>

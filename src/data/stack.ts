@@ -1,1 +1,8 @@
-export const stackLabels = ['Android', 'Kotlin', 'Swift', 'Jetpack Compose'] as const;
+export const stackLabels = [
+  'Swift',
+  'SwiftUI',
+  'WidgetKit',
+  'ActivityKit',
+  'SwiftData',
+  'TCA',
+] as const;

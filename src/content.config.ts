@@ -10,7 +10,8 @@ const projects = defineCollection({
     period: z.string().optional(),
     role: z.string().optional(),
     stack: z.array(z.string()),
-    targets: z.array(z.string()),
+    targets: z.array(z.string()).default([]),
+    featured: z.boolean().optional(),
     highlights: z.array(z.string()).optional(),
     appScreenshots: z
       .array(
