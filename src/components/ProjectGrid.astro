@@ -8,11 +8,10 @@ interface Props {
   lang: Lang;
   projects: ProjectEntry[];
   emptyLabel: string;
-  targetLabel: string;
   screenshotAlt: string;
 }
 
-const { lang, projects, emptyLabel, targetLabel, screenshotAlt } = Astro.props;
+const { lang, projects, emptyLabel, screenshotAlt } = Astro.props;
 ---
 
 {
@@ -28,11 +27,9 @@ const { lang, projects, emptyLabel, targetLabel, screenshotAlt } = Astro.props;
             title={project.data.title}
             summary={project.data.summary}
             stack={project.data.stack}
-            targets={project.data.targets}
             href={getRelativeLocaleUrl(lang, `/projects/${slug}`)}
             screenshotSrc={shot?.src}
             screenshotAlt={shot?.alt ?? screenshotAlt}
-            targetLabel={targetLabel}
           />
         );
       })}

@@ -6,15 +6,12 @@ interface Props {
   title: string;
   summary: string;
   stack: string[];
-  targets: string[];
   href: string;
   screenshotSrc?: string;
   screenshotAlt: string;
-  targetLabel: string;
 }
 
-const { title, summary, stack, targets, href, screenshotSrc, screenshotAlt, targetLabel } =
-  Astro.props;
+const { title, summary, stack, href, screenshotSrc, screenshotAlt } = Astro.props;
 ---
 
 <a
@@ -29,14 +26,6 @@ const { title, summary, stack, targets, href, screenshotSrc, screenshotAlt, targ
       <div class="flex flex-wrap gap-1.5">
         {stack.map((label) => <TechBadge label={label} />)}
       </div>
-      {
-        targets.length > 0 && (
-          <p class="text-xs text-muted">
-            <span class="font-medium text-ink">{targetLabel}: </span>
-            {targets.join(', ')}
-          </p>
-        )
-      }
     </div>
   </article>
 </a>

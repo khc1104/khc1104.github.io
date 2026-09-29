@@ -27,7 +27,7 @@
 1. **유저 사이트**: 저장소 이름이 `khc1104.github.io`이므로 공개 주소는 루트다. `astro.config`의 `site`는 `https://khc1104.github.io`, `base`는 두지 않는다.
 2. **언어 prefix**: `locales: ['ko', 'ja']`, `prefixDefaultLocale: true`. 루트 `/`는 기본 언어로 리다이렉트. 기본 언어는 Phase 1에서 `ko`로 두고, 일본 전용 링크는 `/ja`를 쓴다.
 3. **노션은 원본, MDX는 소스**: 빌드가 Notion에 의존하지 않는다. 글은 `src/content/projects/{ko,ja}/*.mdx`.
-4. **기업 타깃은 정적 경로**: `?company=`만 쓰지 않는다. `/[lang]/for/[company]` 페이지를 빌드하고, 필요하면 목록 하이라이트용 쿼리는 보조로 둔다. OG·공유 링크가 회사별로 갈라진다.
+4. **기업 페이지는 지원 패키지**: 프로젝트 MDX에 회사 태그를 두지 않는다. 지원이 정해지면 `/[lang]/for/[company]`를 그 기업용 포트폴리오로 새로 만들고, 그 페이지가 보여줄 프로젝트 slug·소개·스택을 갖는다. `?company=`만으로 홈을 걸러 쓰지 않는다.
 5. **인터랙션은 아일랜드만**: 레이아웃·카드·목업은 서버(빌드) HTML. 필터 UI만 client island.
 
 ## 사이트 맵
@@ -36,10 +36,10 @@
 /                    → /ko/ 리다이렉트
 /ko/                 소개 + 프로젝트 목록
 /ko/projects/[slug]  프로젝트 상세
-/ko/for/[company]    기업별 맞춤 목록
+/ko/for/[company]    지원 확정 후, 그 기업용 포트폴리오
 /ja/                 동일 구조 (일본어)
 /ja/projects/[slug]
-/ja/for/[company]
+/ja/for/[company]    동일 (지원 확정 후)
 ```
 
 공통 섹션: Hero, About, Stack, Projects, Contact. 앱 스크린샷은 아이폰 목업 안에 둔다.
@@ -55,7 +55,7 @@
   period?: string
   role?: string
   stack: string[]
-  targets: string[]   // 예: ['sony', 'rakuten', 'kakao']
+  featured?: boolean
   highlights?: string[]
   appScreenshots?: { src: string; alt: string }[]
   links?: { github?: string; store?: string; demo?: string }
@@ -63,7 +63,7 @@
 }
 ```
 
-본문은 MDX. 언어별로 파일을 나눈다. 번역은 비즈니스 일본어(겸손·성과 수치·역할 명확).
+본문은 MDX. 언어별로 파일을 나눈다. 번역은 비즈니스 일본어(겸손·성과 수치·역할 명확). 회사 id는 프로젝트 파일에 두지 않는다. 지원 페이지가 `projectSlugs`로 작품을 고른다.
 
 ---
 
@@ -152,21 +152,21 @@
 
 ---
 
-## Phase 4 — 기업별 타깃 뷰
+## Phase 4 — 기업용 포트폴리오 페이지
 
-**목표**: 기업 담당자에게 보내는 URL이 관련 프로젝트를 앞에 둔다.
+**목표**: 지원이 정해진 기업에 보내는 URL이 홈과 다른 소개·스택·프로젝트 구성의 페이지다.
 
 **작업**
 
-1. frontmatter `targets`와 회사 슬러그 맵 (`src/data/companies.ts`: id, 표시명 ko/ja).
-2. `src/pages/[lang]/for/[company].astro` + `getStaticPaths`.
-3. 매칭 프로젝트 우선, 나머지는 “그 외”. 매칭 0이면 전체 목록 + 안내.
-4. (선택) 홈에서 `?company=`는 스크롤/하이라이트만. 공유용 정식 URL은 `/for/...`.
-5. 존재하지 않는 company는 404.
+1. 지원 패키지 데이터 (`src/content/applications/{id}` 또는 `src/data/applications/{id}.ts`): hero, about, stack, `projectSlugs[]`.
+2. `src/pages/[lang]/for/[company].astro` + `getStaticPaths` (등록된 id만).
+3. 그 페이지에 적은 slug만 보여 준다. 홈을 필터하거나, 매칭 0건이면 전체를 보여 주지 않는다.
+4. 존재하지 않는 company는 경로가 없어 404.
+5. 홈 `/ko/`는 공개 iOS 포트폴리오로 유지한다.
 
-**완료 조건**: `/ja/for/{company}`가 정적 HTML로 나오고, 해당 태그가 있는 카드가 위에 온다.
+**완료 조건**: 실제 지원 기업 1곳 이상에 대해 `/[lang]/for/{id}`가 정적 HTML로 나오고, 소개·스택·카드가 홈과 다르다.
 
-**에이전트**: 정렬·필터·경로 생성. 회사 목록은 사용자와 확정.
+**에이전트**: 회사 목록·포지션은 사용자와 확정한 뒤에만 경로를 만든다. 프로젝트 MDX에 회사 태그를 넣지 않는다.
 
 ---
 
@@ -203,7 +203,7 @@ src/
   content/projects/{ko,ja}/*.mdx
   content.config.ts
   i18n/
-  data/companies.ts
+  data/
 astro.config.mjs
 .github/workflows/deploy.yml
 .cursor/docs/                   # 로드맵·작업 기록
@@ -215,7 +215,7 @@ astro.config.mjs
 ```text
 Phase 0 → 1 → 2 → 3 → 4 → 5
                └ 3의 실데이터는 2의 플레이스홀더를 교체
-               └ 4는 3의 targets 필드가 필요
+               └ 4는 지원 확정 후, 프로젝트 slug 목록은 기업 페이지가 갖는다
                └ 5의 OG는 4의 /for 경로를 포함
 ```
 
@@ -238,7 +238,7 @@ Phase 0 → 1 → 2 → 3 → 4 → 5
 | 2 UI 컴포넌트 | 완료 | 2026-09-29 | [2026-09-29-ui-components.md](./2026-09-29-ui-components.md) |
 | 3 MDX·번역 | 완료 | 2026-09-29 | [2026-09-29-mdx-projects.md](./2026-09-29-mdx-projects.md) |
 | 3 보강 노션 실글 | 완료 | 2026-09-29 | [2026-09-29-notion-content.md](./2026-09-29-notion-content.md) |
-| 4 기업 타깃 | 대기 | | |
+| 4 기업용 페이지 | 대기 | | |
 | 5 배포·SEO | 대기 | | |
 
 상태 값은 `대기` / `진행 중` / `완료`. 페이즈가 끝나면 이 표와 해당 `.cursor/docs/` 기록을 함께 갱신한다.
