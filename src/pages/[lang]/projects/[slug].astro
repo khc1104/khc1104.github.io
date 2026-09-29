@@ -158,7 +158,7 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
 </BaseLayout>
 
 <style>
-  .project-body :global(h2) {
+  .project-body > :global(h2) {
     color: var(--color-ink);
     font-size: 1.35rem;
     font-weight: 600;
@@ -168,7 +168,7 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
     scroll-margin-top: 2rem;
   }
 
-  .project-body :global(h3) {
+  .project-body > :global(h3) {
     color: var(--color-ink);
     font-size: 1.05rem;
     font-weight: 600;
@@ -177,34 +177,34 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
     scroll-margin-top: 2rem;
   }
 
-  .project-body :global(h2 + p),
-  .project-body :global(h3 + p) {
+  .project-body > :global(h2 + p),
+  .project-body > :global(h3 + p) {
     margin-top: 0.75rem;
   }
 
-  .project-body :global(ul) {
+  .project-body > :global(ul) {
     list-style: disc;
     margin-top: 1rem;
     padding-left: 1.25rem;
   }
 
-  .project-body :global(ol) {
+  .project-body > :global(ol) {
     list-style: decimal;
     margin-top: 1rem;
     padding-left: 1.25rem;
   }
 
-  .project-body :global(p),
-  .project-body :global(li) {
+  .project-body > :global(p),
+  .project-body > :global(:is(ul, ol) > li) {
     line-height: 1.8;
     max-width: 72ch;
   }
 
-  .project-body :global(p + p) {
+  .project-body > :global(p + p) {
     margin-top: 1rem;
   }
 
-  .project-body :global(li + li) {
+  .project-body > :global(:is(ul, ol) > li + li) {
     margin-top: 0.4rem;
   }
 
@@ -221,7 +221,7 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
     padding: 0.1rem 0.3rem;
   }
 
-  .project-body :global(table) {
+  .project-body > :global(table) {
     display: block;
     margin-top: 1.25rem;
     overflow-x: auto;
@@ -244,7 +244,7 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
   }
 
   @media (max-width: 639px) {
-    .project-body :global(h2) {
+    .project-body > :global(h2) {
       margin-top: 3rem;
     }
   }
