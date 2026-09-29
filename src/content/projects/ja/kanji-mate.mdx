@@ -15,25 +15,66 @@ stack:
 featured: true
 ---
 
-## 問題
+import ArchitectureFlow from '../../../components/mdx/ArchitectureFlow.astro';
+import Callout from '../../../components/mdx/Callout.astro';
+import CaseStudyNav from '../../../components/mdx/CaseStudyNav.astro';
+import MetricGrid from '../../../components/mdx/MetricGrid.astro';
+import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
 
-ひらがな・カタカナは読めるのに、原書やニュースで漢字が出ると辞書アプリを開き、画数を数えたりコピーしたりして読書が途切れました。今読んでいる箇所を助けつつ、読み方を残したかったです。
+<MetricGrid
+  items={[
+    { value: '0.24 → 0.50', label: 'V1 縦書きebook RAW' },
+    { value: '0.775 → 0.875', label: 'V2 一般化 RAW' },
+    { value: '0.966', label: 'H1 横書きニュース RAW' },
+    { value: 'iOS 18+', label: '対応バージョン' },
+  ]}
+/>
 
-中核のパイプラインは スクリーンショット → OCR → 形態素（漢字lemma） → 翻訳（JA→KO） → 保存・ウィジェット です。成功指標は文全体の完全OCRではなく、**漢字±3のコンテキスト窓の再現率**です。
+<CaseStudyNav
+  label="このページの内容"
+  items={[
+    { href: '#background', label: '背景と成功指標' },
+    { href: '#architecture', label: 'OCRパイプライン' },
+    { href: '#measurement', label: '検証方法と成果' },
+    { href: '#troubleshooting', label: '問題解決' },
+    { href: '#next', label: '制約と次の課題' },
+  ]}
+/>
 
-## 担当
+<h2 id="background">背景と成功指標</h2>
 
-個人開発です。iOS 18以上で、オンデバイスTranslationとAppIntent・Live Activityを基準にしました。OCR品質はシミュレータではなく実機のfixtureで測り直しています。
+ひらがなとカタカナは読めても、日本語の原書やニュースで知らない漢字に出会うと読書の流れが止まりました。辞書アプリを開き、画数を数えたり文をコピーしたりする間に、読んでいた文脈を失いやすいことが課題でした。
 
-Visionは日本語OCR、Natural Languageはlemma・品詞、SwiftDataとApp Groupはアプリ・AppIntent・Live Activityが同じストアを見るために使いました。システム画面のキャプチャはAppIntent単体ではできないため、ショートカットでスクリーンショットを渡します。
+KanjiMateはスクリーンショットから漢字語を抽出し、読み方と韓国語訳を提示して、必要な語をその場で保存する学習補助アプリです。文書全体を完全にOCRすることより、**今見ている漢字の周辺文脈をどれだけ落とさないか**を重要な製品指標にしました。
 
-## 機能と成果
+<Callout label="測定方針">
+  成功指標は文全体の一致率ではなく、正解漢字を中心とした±3文字のコンテキスト窓再現率です。OCR後の補正で品質を誤認しないよう、RAWとCORRECTEDを分けて測定します。
+</Callout>
 
-- 横書き（ニュース）と縦書き（電子書籍）を `fullTextQualityScore` で分岐
-- 縦書きは90°回転 → 列クラスタ → 字間・行間merge → 重なりスティッチ → Vision
-- オンデバイスJA→KO翻訳、SwiftData単語帳、Anki CSV書き出し
-- Dynamic Islandとロック画面で抽出語カードと保存
-- 製品指標は校正OFF（raw）と短い高頻度パッチ（corrected）を分けて測定（2026-08-19 実機）
+<h2 id="architecture">OCRパイプラインと技術選定</h2>
+
+AppIntent単体では他アプリの画面を取得できないため、ショートカットからスクリーンショットを渡す方式にしました。受け取った画像はメモリ消費を抑えるためにダウンサンプルし、横書きニュースと縦書きebookへ別々の前処理を適用します。
+
+<ArchitectureFlow
+  label="スクリーンショットからLive Activityの単語カードまで"
+  steps={[
+    { title: 'ショートカット', detail: '現在画面を撮影してAppIntentへ渡す' },
+    { title: 'レイアウト判定', detail: '横書きと縦書きの候補を生成' },
+    { title: 'Vision OCR', detail: '縦書きは回転・列結合・スティッチ後に認識' },
+    { title: '形態素解析', detail: '漢字lemmaと品詞を抽出・整理' },
+    { title: 'Translation', detail: 'オンデバイスでJA→KO翻訳' },
+    { title: 'SwiftData', detail: '一時抽出と保存語をApp Groupに保持' },
+    { title: 'Live Activity', detail: 'ロック画面でカード移動と保存' },
+  ]}
+/>
+
+Visionは日本語OCRと文字ボックス検出、Natural Languageはlemmaと品詞解析に使用しました。iOS 18のTranslationで端末内翻訳を行い、アプリ・AppIntent・Live ActivityはApp Group上の同じSwiftDataストアを参照します。抽出語はDynamic Islandとロック画面で確認・保存でき、Anki互換CSVとしても出力できます。
+
+縦書きでは画像を90度回転し、文字ボックスを列単位でまとめます。振り仮名の列と重なったルビを除外し、過分割された文字を字間・行間基準で結合した後、重複区間をスティッチしてVisionの横書きOCRに入力します。最後に`fullTextQualityScore`で横書き・縦書き候補を比較します。
+
+<h2 id="measurement">検証方法と成果</h2>
+
+OCR品質はシミュレータ上の少数画像だけで判断せず、実機fixtureを繰り返し実行して回帰を防ぎました。RAWは`spellingCorrections`を切ったOCR直後、CORRECTEDは短い高頻度補正だけを適用した結果です。
 
 | Fixture | ドメイン | RAW | CORRECTED | 回帰ガード |
 | --- | --- | --- | --- | --- |
@@ -42,18 +83,62 @@ Visionは日本語OCR、Natural Languageはlemma・品詞、SwiftDataとApp Grou
 | H1 | 横書きニュース | 0.966 | 0.989 | ≥ 0.90 |
 | M1 | 漫画スモーク | 0.036 | 0.036 | ≥ 0.01 |
 
-MangaOCR CoreMLはV1 rawを上げられなかったため、製品の既定はOFFです。漫画吹き出しパイプラインは未実装で、M1は0.0崩壊だけを見るスモークです。
+V1は縦書きebookの第一目標、V2は別ページへの一般化を確認する下限です。H1は縦書き実験が安定した横書きニュース経路を壊していないかを検証します。漫画の吹き出し専用処理は未実装のため、M1は品質目標ではなく0.0への崩壊だけを検知します。
 
-## 問題解決
+<h2 id="troubleshooting">問題解決</h2>
 
-### 「高いOCRスコア」がエンジン品質ではなかった問題
+<Troubleshooting
+  title="高いOCRスコアがエンジン品質を示していなかった"
+  problem="初期のCORRECTEDはほぼ100%に見えましたが、補正を切るとRAWが急落しました。"
+  cause="長文や固有名詞を丸ごと置換するspellingCorrectionsが、OCR自体の誤りを隠していました。"
+  solution="RAWとCORRECTEDを分け、補正は短い高頻度表現だけに限定しました。回帰ガード未達時は長文パッチで埋めず、変更を戻すか前処理を再調整します。"
+  result="OCRエンジンの改善と後処理の効果を別々に説明でき、製品指標が実際の品質を反映するようになりました。"
+  labels={{ problem: '問題', cause: '原因', solution: '解決', result: '結果' }}
+  open
+/>
 
-当初correctedがほぼ100%に見えましたが、長い文や固有名詞の `spellingCorrections` に乗った点数でした。校正を切るとrawが急落しました。
+<Troubleshooting
+  title="縦書き漢字が複数ボックスに過分割された"
+  problem="Vision characterBoxesが、内部に空白のある前や左右の部首を持つ強を複数ボックスに分割しました。"
+  cause="各ボックスを一文字としてcrop・スティッチしたため、部首や振り仮名が本文へ混ざり別の漢字として認識されました。"
+  solution="読書軸・直交方向のglyph mergeと直前ひらがなのbleedガードを追加し、偽の振り仮名列と重複ルビだけを本文から外しました。"
+  result="V1 RAWは0.24から0.50、V2 RAWは0.775から0.875へ改善しました。本文帯まで広く消してV1が0.47へ落ちた変更は戻しました。"
+  labels={{ problem: '問題', cause: '原因', solution: '解決', result: '結果' }}
+/>
 
-測定はraw / correctedの二重指標に分け、パッチは短い高頻度だけ残しました。文や固有名詞を丸ごと差し替えて点数を上げません。ガード未達なら長い文パッチで埋めず、その変更を戻すか許容比率だけ直して測り直します。
+<Troubleshooting
+  title="横書きと縦書きのOCR経路が干渉した"
+  problem="横書きニュースに縦書き処理が入り、ebookが大きな一行として検出され横書き経路へ誤分類される場合がありました。"
+  cause="画像の向きだけでは、文字ボックスの配置と認識品質を反映できませんでした。"
+  solution="ボックス形状と行数から候補を作り、fullTextQualityScoreで最終結果を選択しました。"
+  result="H1 RAW約0.97を維持しながら、縦書き処理を独立して改善できるようになりました。"
+  labels={{ problem: '問題', cause: '原因', solution: '解決', result: '結果' }}
+/>
 
-### 縦書きebook OCR — 過分割とスティッチ汚染
+<Troubleshooting
+  title="ショートカットとバックグラウンドのメモリ制約"
+  problem="AppIntent単体では画面取得ができず、大きな画像をバックグラウンド処理するとメモリ上限を超える可能性がありました。"
+  cause="iOSのサンドボックスとAppIntentの実行環境を通常のアプリ内機能と同じように考えていました。"
+  solution="ショートカットからIntentへ画像を渡し、CGImageSourceで先にダウンサンプルしました。"
+  result="プラットフォーム制約を回避せず、システムが許容するユーザーフロー内でOCRとLive Activityを接続しました。"
+  labels={{ problem: '問題', cause: '原因', solution: '解決', result: '結果' }}
+/>
 
-Visionの `characterBoxes` が `前` のように内部空白のある字や `強` のように左右の部首を複数ボックスに切り、ボックスごとにcrop・スティッチすると別の漢字になりました。
+<Troubleshooting
+  title="MangaOCRを導入しても品質が上がらなかった"
+  problem="Core ML変換エラーを直しても、MangaOCRを有効にしたV1 RAWはVision単体より低いままでした。"
+  cause="モデルが正常に動くことと、現在の製品fixtureで品質が上がることは別の問題でした。"
+  solution="MangaOCRを既定経路から外し、実験用トグルとしてだけ残しました。"
+  result="新技術を採用した事実ではなく、測定結果を基準にVision-onlyを製品経路として選びました。"
+  labels={{ problem: '問題', cause: '原因', solution: '解決', result: '結果' }}
+/>
 
-読書軸・直交のglyph mergeと直前ひらがなのbleedガードを入れ、V1 rawを0.24から0.50まで上げました。振り仮名の偽列や重なったルビは本文スティッチから外し、V2 rawは0.775から0.875になりました。帯なしで消すとV1が0.47に回帰したため、その変更は戻しました。
+<h2 id="next">制約と次の課題</h2>
+
+縦書きebookの`呆れた`区間のように、Visionが文字ボックス自体を作れない部分は残っています。短い列の上部を無条件に再走査すると空白と未検出を区別できず、文字の途中を切るため、インク投影がある区間だけ再認識するよう制限しました。
+
+次はこの区間を独立したfixtureとして検証し、漫画吹き出し専用の検出と正解セットを作ります。公開前にはショートカットのオンボーディングを分かりやすくし、利用者が補正を蓄積できる個人化OCRCorrectionも検討します。
+
+<Callout label="現在の制約">
+  M1は漫画OCRの品質を意味しません。専用パイプラインがないため、0.0へ完全に崩れることだけを確認するスモークテストです。
+</Callout>

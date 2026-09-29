@@ -1,0 +1,25 @@
+---
+interface Metric {
+  value: string;
+  label: string;
+  detail?: string;
+}
+
+interface Props {
+  items: Metric[];
+}
+
+const { items } = Astro.props;
+---
+
+<dl class="not-prose grid gap-3 sm:grid-cols-2" aria-label="Key results">
+  {
+    items.map((item) => (
+      <div class="rounded-2xl border border-line bg-white p-4">
+        <dd class="text-2xl font-semibold tracking-tight text-ink">{item.value}</dd>
+        <dt class="mt-1 text-sm font-medium text-ink">{item.label}</dt>
+        {item.detail && <p class="mt-1 text-sm leading-6 text-muted">{item.detail}</p>}
+      </div>
+    ))
+  }
+</dl>

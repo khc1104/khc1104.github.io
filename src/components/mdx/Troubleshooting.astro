@@ -1,0 +1,62 @@
+---
+interface Props {
+  title: string;
+  problem: string;
+  cause: string;
+  solution: string;
+  result?: string;
+  labels?: {
+    problem: string;
+    cause: string;
+    solution: string;
+    result: string;
+  };
+  open?: boolean;
+}
+
+const {
+  title,
+  problem,
+  cause,
+  solution,
+  result,
+  labels = {
+    problem: '문제',
+    cause: '원인',
+    solution: '해결',
+    result: '결과',
+  },
+  open = false,
+} = Astro.props;
+
+const rows = [
+  { label: labels.problem, value: problem },
+  { label: labels.cause, value: cause },
+  { label: labels.solution, value: solution },
+  ...(result ? [{ label: labels.result, value: result }] : []),
+];
+---
+
+<details class="not-prose group my-4 overflow-hidden rounded-2xl border border-line bg-white" open={open}>
+  <summary
+    class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 font-semibold text-ink outline-none marker:hidden focus-visible:ring-2 focus-visible:ring-zinc-700 focus-visible:ring-inset"
+  >
+    <span>{title}</span>
+    <span
+      class="text-lg leading-none text-muted transition-transform group-open:rotate-45 motion-reduce:transition-none"
+      aria-hidden="true"
+    >
+      +
+    </span>
+  </summary>
+  <dl class="grid gap-4 border-t border-line px-4 py-5 sm:grid-cols-[5rem_minmax(0,1fr)]">
+    {
+      rows.map((row) => (
+        <>
+          <dt class="text-sm font-semibold text-ink">{row.label}</dt>
+          <dd class="text-sm leading-7 text-muted">{row.value}</dd>
+        </>
+      ))
+    }
+  </dl>
+</details>

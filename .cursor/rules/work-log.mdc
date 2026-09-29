@@ -19,7 +19,7 @@ alwaysApply: true
 # <짧은 제목>
 
 - 날짜: YYYY-MM-DD
-- Phase: 0–5 또는 n/a
+- Phase: 0–6 또는 n/a
 - 상태: 완료 | 부분 완료
 
 ## 한 일

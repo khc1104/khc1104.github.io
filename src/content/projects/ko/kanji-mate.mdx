@@ -15,25 +15,66 @@ stack:
 featured: true
 ---
 
-## 문제
+import ArchitectureFlow from '../../../components/mdx/ArchitectureFlow.astro';
+import Callout from '../../../components/mdx/Callout.astro';
+import CaseStudyNav from '../../../components/mdx/CaseStudyNav.astro';
+import MetricGrid from '../../../components/mdx/MetricGrid.astro';
+import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
 
-히라가나·가타카나는 읽을 수 있는데, 원서나 뉴스에서 한자가 나오면 사전 앱을 켜고 획을 세거나 복사하느라 읽기가 끊겼습니다. 당장 읽는 것을 도우면서 한자 읽기를 남기고 싶었습니다.
+<MetricGrid
+  items={[
+    { value: '0.24 → 0.50', label: 'V1 세로 ebook RAW' },
+    { value: '0.775 → 0.875', label: 'V2 일반화 RAW' },
+    { value: '0.966', label: 'H1 가로 뉴스 RAW' },
+    { value: 'iOS 18+', label: '지원 버전' },
+  ]}
+/>
 
-핵심 파이프라인은 스크린샷 → OCR → 형태소(한자 lemma) → 번역(JA→KO) → 저장·위젯입니다. 성공 지표는 문장 전체 완벽 OCR이 아니라 **한자 ±3 컨텍스트 윈도우 재현율**입니다.
+<CaseStudyNav
+  label="이 페이지에서"
+  items={[
+    { href: '#background', label: '배경과 성공 기준' },
+    { href: '#architecture', label: 'OCR 파이프라인' },
+    { href: '#measurement', label: '검증 방식과 성과' },
+    { href: '#troubleshooting', label: '문제 해결 경험' },
+    { href: '#next', label: '한계와 다음 단계' },
+  ]}
+/>
 
-## 역할
+<h2 id="background">배경과 성공 기준</h2>
 
-개인 개발. iOS 18 이상이며, 온디바이스 Translation과 AppIntent·Live Activity 스택을 기준으로 잡았습니다. OCR 품질은 시뮬레이터가 아니라 실기기 fixture로 재봅니다.
+히라가나와 가타카나는 읽을 수 있어도 일본어 원서나 뉴스에서 모르는 한자를 만나면 읽기의 흐름이 끊겼습니다. 사전 앱을 열고, 획을 세거나 문장을 복사하는 사이에 원래 읽던 맥락을 잃기 쉬웠습니다.
 
-Vision은 일본어 OCR, Natural Language는 lemma·품사, SwiftData와 App Group은 앱·AppIntent·Live Activity가 같은 저장소를 보기 위해 썼습니다. 시스템 화면 캡처는 AppIntent 단독으로 할 수 없어, 단축어로 스크린샷을 넘깁니다.
+KanjiMate는 스크린샷 한 장에서 한자 단어를 찾아 읽는 법과 한국어 뜻을 보여 주고, 마음에 드는 단어는 바로 저장하는 학습 보조 앱입니다. 완벽한 문서 OCR보다 **지금 보고 있는 한자 주변의 짧은 문맥을 얼마나 놓치지 않는가**를 더 중요한 제품 지표로 정했습니다.
 
-## 기능과 성과
+<Callout label="측정 원칙">
+  성공 지표는 문장 전체 일치율이 아니라 정답 한자를 중심으로 한 ±3글자 컨텍스트 윈도우 재현율입니다. OCR 뒤의 교정으로 점수를 부풀리지 않도록 RAW와 CORRECTED를 분리합니다.
+</Callout>
 
-- 가로(뉴스) / 세로(ebook) 레이아웃을 `fullTextQualityScore`로 나눔
-- 세로글은 90° 회전 → 열 클러스터 → 자간·행간 merge → 겹침 스티치 → Vision
-- 온디바이스 JA→KO 번역, SwiftData 단어장, Anki CSV보내기
-- Dynamic Island·잠금 화면에서 추출 단어 카드와 저장
-- 제품 지표는 교정 OFF(raw)와 짧은 고빈도 패치(corrected)를 분리해 측정 (2026-08-19 실기기)
+<h2 id="architecture">OCR 파이프라인과 기술 선택</h2>
+
+AppIntent만으로는 다른 앱의 화면을 캡처할 수 없으므로 사용자가 단축어에서 스크린샷을 넘기도록 했습니다. 받은 이미지는 메모리 사용량을 줄이기 위해 다운샘플한 뒤, 가로 뉴스와 세로 ebook에 서로 다른 전처리를 적용합니다.
+
+<ArchitectureFlow
+  label="스크린샷에서 Live Activity 단어 카드까지"
+  steps={[
+    { title: '단축어', detail: '현재 화면을 캡처해 AppIntent에 전달' },
+    { title: '레이아웃 판단', detail: '가로 뉴스와 세로 ebook 후보 생성' },
+    { title: 'Vision OCR', detail: '세로글은 회전·열 병합·스티치 후 인식' },
+    { title: '형태소 분석', detail: '한자 lemma와 품사를 추출·정제' },
+    { title: 'Translation', detail: '온디바이스 JA→KO 번역' },
+    { title: 'SwiftData', detail: '임시 추출과 저장 단어를 App Group에 보관' },
+    { title: 'Live Activity', detail: '잠금 화면에서 카드 이동과 저장' },
+  ]}
+/>
+
+Vision은 일본어 OCR과 문자 박스 검출에, Natural Language는 lemma와 품사 분석에 사용했습니다. iOS 18의 Translation으로 기기 안에서 번역하며, 앱·AppIntent·Live Activity는 App Group의 같은 SwiftData 저장소를 봅니다. 추출한 단어는 Dynamic Island와 잠금 화면에서 넘겨 보고 저장할 수 있으며, Anki 호환 CSV로도 내보낼 수 있습니다.
+
+세로글은 이미지를 90도 회전한 뒤 문자 박스를 열 단위로 묶습니다. 후리가나 열과 겹친 루비를 제외하고, 과하게 분리된 글자를 자간·행간 기준으로 합친 다음 겹치는 구간을 스티치해 Vision의 가로 OCR에 넣습니다. 가로·세로 후보 중에서는 `fullTextQualityScore`가 높은 결과를 채택합니다.
+
+<h2 id="measurement">검증 방식과 성과</h2>
+
+OCR 품질은 시뮬레이터의 몇 장만 보고 판단하지 않고, 실기기 fixture를 반복 실행해 회귀를 막았습니다. RAW는 `spellingCorrections`를 끈 OCR 직후 결과이고, CORRECTED는 짧은 고빈도 패치만 허용한 결과입니다.
 
 | Fixture | 도메인 | RAW | CORRECTED | 회귀 가드 |
 | --- | --- | --- | --- | --- |
@@ -42,18 +83,57 @@ Vision은 일본어 OCR, Natural Language는 lemma·품사, SwiftData와 App Gro
 | H1 | 가로 뉴스 | 0.966 | 0.989 | ≥ 0.90 |
 | M1 | 만화 스모크 | 0.036 | 0.036 | ≥ 0.01 |
 
-MangaOCR CoreML은 V1 raw를 올리지 못해 제품 기본은 OFF입니다. 만화 말풍선 파이프는 아직 없고, M1은 0.0 붕괴만 보는 스모크입니다.
+V1은 세로 ebook의 1차 목표선, V2는 다른 페이지에서도 구조가 통하는지 보는 일반화 하한입니다. H1은 세로 OCR 실험이 이미 안정적인 가로 뉴스 경로를 망가뜨리지 않는지 확인합니다. 만화 말풍선 파이프는 아직 구현하지 않아 M1은 품질 목표가 아니라 0.0 붕괴만 감지하는 스모크 가드입니다.
 
-## 문제 해결
+<h2 id="troubleshooting">문제 해결 경험</h2>
 
-### “높은 OCR 점수”가 엔진 품질이 아니었던 문제
+<Troubleshooting
+  title="높은 OCR 점수가 실제 엔진 품질이 아니었던 문제"
+  problem="초기 CORRECTED 점수는 거의 100%처럼 보였지만 교정을 끄면 RAW가 급락했습니다."
+  cause="긴 문장과 고유명사를 통째로 바꾸는 spellingCorrections가 OCR 자체의 오류를 가리고 있었습니다."
+  solution="측정을 RAW와 CORRECTED로 분리하고, 교정은 짧은 고빈도 표현만 허용했습니다. 회귀 가드에 미달하면 문장 패치로 메우지 않고 변경을 되돌리거나 전처리를 다시 조정했습니다."
+  result="OCR 엔진 개선과 사후 교정 효과를 따로 설명할 수 있게 되었고, 제품 지표가 구현의 실제 품질을 반영하게 됐습니다."
+  open
+/>
 
-초기에 corrected가 거의 100%처럼 보였으나, 긴 문장·고유명사 `spellingCorrections`에 기댄 점수였습니다. 교정을 끄면 raw가 급락했습니다.
+<Troubleshooting
+  title="세로글의 한자가 여러 박스로 쪼개지던 문제"
+  problem="Vision characterBoxes가 내부 공백이 있는 前와 좌우 부수로 나뉜 強 같은 글자를 여러 박스로 검출했습니다."
+  cause="각 박스를 글자 하나로 보고 crop·스티치하면서 부수와 후리가나가 본문에 섞여 다른 한자로 인식됐습니다."
+  solution="독서축·직교 방향의 glyph merge와 이전 히라가나 bleed 가드를 넣었습니다. 후리가나 가짜 열과 겹친 루비만 본문 스티치에서 제외했습니다."
+  result="V1 RAW는 0.24에서 0.50, V2 RAW는 0.775에서 0.875로 올랐습니다. 본문 띠까지 넓게 지웠을 때 V1이 0.47로 떨어진 변경은 되돌렸습니다."
+/>
 
-측정은 raw / corrected 이중 지표로 나눴고, 패치는 짧은 고빈도만 남겼습니다. 문장이나 고유명사를 통째로 바꿔 점수를 올리지 않습니다. 가드 미달이면 긴 문장 패치로 메우지 않고 해당 변경을 되돌리거나 허용 비율만 조정한 뒤 다시 잽니다.
+<Troubleshooting
+  title="가로와 세로 OCR 경로가 서로 오염되던 문제"
+  problem="가로 뉴스에 세로 전처리가 개입하거나, ebook이 큰 한 줄로 인식돼 가로 경로로 잘못 선택되는 경우가 있었습니다."
+  cause="이미지 방향 하나만으로 레이아웃을 나누면 문자 박스의 실제 배열과 인식 품질을 반영할 수 없었습니다."
+  solution="박스 형상과 행 개수로 후보를 만들고, 최종적으로 fullTextQualityScore를 비교해 가로·세로 결과를 선택했습니다."
+  result="H1 RAW 약 0.97을 유지하면서 세로 전처리를 독립적으로 개선할 수 있게 됐습니다."
+/>
 
-### 세로 ebook OCR — 검출 과분할과 스티치 오염
+<Troubleshooting
+  title="단축어와 백그라운드 메모리 제약"
+  problem="AppIntent 단독 화면 캡처는 불가능했고, 큰 스크린샷을 백그라운드에서 처리하면 메모리 한도를 넘을 수 있었습니다."
+  cause="iOS 샌드박스와 AppIntent의 실행 환경을 앱 내부 기능처럼 가정했습니다."
+  solution="단축어가 스크린샷을 Intent로 넘기게 하고, CGImageSource로 입력 이미지를 먼저 다운샘플했습니다."
+  result="플랫폼 제약을 우회하지 않고 시스템이 허용하는 사용자 흐름 안에서 OCR과 Live Activity를 연결했습니다."
+/>
 
-Vision `characterBoxes`가 `前`처럼 내부 공백이 있는 글자, `強`처럼 좌우 부수를 여러 박스로 쪼개, 박스마다 crop·스티치하면 이상한 한자가 됐습니다.
+<Troubleshooting
+  title="MangaOCR를 넣어도 품질이 오르지 않았던 실험"
+  problem="Core ML 변환 오류를 고친 뒤에도 MangaOCR를 켠 V1 RAW가 Vision 단독보다 낮았습니다."
+  cause="모델을 정상 실행하는 것과 현재 제품의 fixture에서 품질을 높이는 것은 별개의 문제였습니다."
+  solution="MangaOCR를 기본 경로에서 빼고 실험 토글로만 남겼습니다. 제품은 fixture에서 더 안정적인 Vision-only를 사용합니다."
+  result="새 기술을 넣었다는 이유보다 측정 결과를 기준으로 제품 경로를 선택했습니다."
+/>
 
-독서축·직교 glyph merge와 이전 히라가나 bleed 가드를 넣어 V1 raw를 0.24에서 0.50까지 올렸습니다. 후리가나 가짜 열·겹친 루비는 본문 스티치에서 빼, V2 raw는 0.775에서 0.875가 됐습니다. 띠 없이 지우면 V1이 0.47로 회귀해 되돌렸습니다.
+<h2 id="next">한계와 다음 단계</h2>
+
+세로 ebook의 `呆れた` 구간처럼 Vision이 문자 박스를 만들지 못하는 부분은 아직 남아 있습니다. 짧은 열 위를 무조건 다시 스캔하면 공백과 미검출을 구분하지 못하고 글자 중간을 자르기 때문에, 잉크 투영이 있는 구간만 재인식하도록 제한했습니다.
+
+다음 단계는 이 구간을 별도 fixture로 격리해 검증하고, 만화 말풍선 전용 검출과 정답 세트를 만드는 것입니다. 출시 전에는 단축어 온보딩을 더 이해하기 쉽게 다듬고, 사용자가 직접 교정을 축적할 수 있는 개인화 OCRCorrection도 검토합니다.
+
+<Callout label="현재 한계">
+  M1은 말풍선 OCR 품질을 의미하지 않습니다. 아직 전용 파이프라인이 없으므로 0.0으로 완전히 무너지는지만 확인하는 스모크 테스트입니다.
+</Callout>

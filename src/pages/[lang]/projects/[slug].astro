@@ -69,7 +69,7 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
         />
       )
     }
-    <div class="space-y-6">
+    <div class="min-w-0 space-y-6">
       <header class="space-y-3">
         <p class="text-xs font-medium tracking-wide text-muted">{t(platformLabelKey(platform))}</p>
         <h1 class="text-3xl font-semibold tracking-tight">{title}</h1>
@@ -139,7 +139,7 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
         )
       }
 
-      <div class="project-body space-y-4 text-muted">
+      <div class="project-body text-muted">
         <Content />
       </div>
     </div>
@@ -160,41 +160,92 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
 <style>
   .project-body :global(h2) {
     color: var(--color-ink);
-    font-size: 1.125rem;
+    font-size: 1.35rem;
     font-weight: 600;
     letter-spacing: -0.02em;
+    line-height: 1.35;
+    margin-top: 4rem;
+    scroll-margin-top: 2rem;
   }
 
   .project-body :global(h3) {
     color: var(--color-ink);
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 600;
+    line-height: 1.5;
+    margin-top: 2.5rem;
+    scroll-margin-top: 2rem;
+  }
+
+  .project-body :global(h2 + p),
+  .project-body :global(h3 + p) {
+    margin-top: 0.75rem;
   }
 
   .project-body :global(ul) {
     list-style: disc;
+    margin-top: 1rem;
+    padding-left: 1.25rem;
+  }
+
+  .project-body :global(ol) {
+    list-style: decimal;
+    margin-top: 1rem;
     padding-left: 1.25rem;
   }
 
   .project-body :global(p),
   .project-body :global(li) {
-    line-height: 1.65;
+    line-height: 1.8;
+    max-width: 72ch;
+  }
+
+  .project-body :global(p + p) {
+    margin-top: 1rem;
+  }
+
+  .project-body :global(li + li) {
+    margin-top: 0.4rem;
+  }
+
+  .project-body :global(strong) {
+    color: var(--color-ink);
+    font-weight: 600;
   }
 
   .project-body :global(code) {
+    border-radius: 0.3rem;
+    background: var(--color-zinc-100);
+    color: var(--color-ink);
     font-size: 0.875em;
+    padding: 0.1rem 0.3rem;
   }
 
   .project-body :global(table) {
+    display: block;
+    margin-top: 1.25rem;
+    overflow-x: auto;
     width: 100%;
     font-size: 0.875rem;
     border-collapse: collapse;
+    white-space: nowrap;
   }
 
   .project-body :global(th),
   .project-body :global(td) {
     border-bottom: 1px solid var(--color-line);
-    padding: 0.4rem 0.5rem;
+    padding: 0.65rem 0.75rem;
     text-align: left;
+  }
+
+  .project-body :global(th) {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  @media (max-width: 639px) {
+    .project-body :global(h2) {
+      margin-top: 3rem;
+    }
   }
 </style>
