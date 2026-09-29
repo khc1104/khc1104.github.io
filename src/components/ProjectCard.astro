@@ -1,0 +1,35 @@
+---
+import IphoneMockup from './IphoneMockup.astro';
+import TechBadge from './TechBadge.astro';
+
+interface Props {
+  title: string;
+  summary: string;
+  stack: string[];
+  targets: string[];
+  screenshotSrc?: string;
+  screenshotAlt: string;
+  targetLabel: string;
+}
+
+const { title, summary, stack, targets, screenshotSrc, screenshotAlt, targetLabel } = Astro.props;
+---
+
+<article class="flex flex-col gap-4 rounded-2xl border border-line bg-white p-5 sm:flex-row sm:items-start">
+  <IphoneMockup class="w-28 sm:w-32" src={screenshotSrc} alt={screenshotAlt} />
+  <div class="min-w-0 flex-1 space-y-3">
+    <h3 class="text-lg font-semibold tracking-tight">{title}</h3>
+    <p class="text-sm text-muted">{summary}</p>
+    <div class="flex flex-wrap gap-1.5">
+      {stack.map((label) => <TechBadge label={label} />)}
+    </div>
+    {
+      targets.length > 0 && (
+        <p class="text-xs text-muted">
+          <span class="font-medium text-ink">{targetLabel}: </span>
+          {targets.join(', ')}
+        </p>
+      )
+    }
+  </div>
+</article>

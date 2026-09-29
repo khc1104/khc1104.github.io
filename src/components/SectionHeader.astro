@@ -1,0 +1,14 @@
+---
+interface Props {
+  title: string;
+  headingId: string;
+  description?: string;
+}
+
+const { title, headingId, description } = Astro.props;
+---
+
+<header class="space-y-2">
+  <h2 id={headingId} class="text-xl font-semibold tracking-tight">{title}</h2>
+  {description && <p class="text-muted">{description}</p>}
+</header>
