@@ -1,0 +1,42 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  alt: string;
+  monogram: string;
+  class?: string;
+}
+
+const { alt, monogram, class: className } = Astro.props;
+
+const photos = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/profile.{jpg,jpeg,png,webp}',
+  { eager: true },
+);
+const photo = Object.values(photos)[0]?.default;
+const frame = 'aspect-[3/4] w-28 overflow-hidden rounded-2xl border border-line sm:w-40';
+---
+
+{
+  photo ? (
+    <Image
+      class:list={[frame, 'object-cover', className]}
+      src={photo}
+      alt={alt}
+      widths={[224, 320, 480]}
+      sizes="(min-width: 640px) 160px, 112px"
+      loading="eager"
+    />
+  ) : (
+    <div
+      class:list={[frame, 'flex items-center justify-center bg-zinc-100', className]}
+      role="img"
+      aria-label={alt}
+    >
+      <span class="text-4xl font-semibold text-zinc-500 sm:text-5xl" aria-hidden="true">
+        {monogram}
+      </span>
+    </div>
+  )
+}

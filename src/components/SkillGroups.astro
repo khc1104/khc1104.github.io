@@ -1,0 +1,32 @@
+---
+import TechBadge from './TechBadge.astro';
+import type { SkillGroup } from '../data/profile';
+
+interface Props {
+  groups: SkillGroup[];
+}
+
+const { groups } = Astro.props;
+---
+
+<dl class="divide-y divide-line rounded-2xl border border-line bg-white">
+  {
+    groups.map((group) => (
+      <div class="grid gap-2 px-4 py-3 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+        <dt
+          class:list={[
+            'text-xs font-semibold tracking-wide',
+            group.secondary ? 'text-zinc-500' : 'text-muted',
+          ]}
+        >
+          {group.label}
+        </dt>
+        <dd class:list={['flex flex-wrap gap-1.5', group.secondary && 'opacity-70']}>
+          {group.items.map((item) => (
+            <TechBadge label={item} />
+          ))}
+        </dd>
+      </div>
+    ))
+  }
+</dl>

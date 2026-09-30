@@ -18,7 +18,7 @@ const switchHref = getRelativeLocaleUrl(next, pathWithoutLocale(Astro.url.pathna
 <header class="border-b border-line bg-white">
   <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
     <a class="font-semibold tracking-tight" href={homeHref}>{t('siteName')}</a>
-    <nav class="flex items-center gap-4 text-sm">
+    <nav class="flex shrink-0 items-center gap-4 text-sm whitespace-nowrap">
       <a class="text-muted hover:text-ink" href={homeHref}>{t('navHome')}</a>
       <a class="text-muted hover:text-ink" href={projectsHref}>{t('navProjects')}</a>
       <a

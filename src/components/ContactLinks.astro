@@ -1,0 +1,34 @@
+---
+import type { Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+import { contact } from '../data/contact';
+
+interface Props {
+  lang: Lang;
+  class?: string;
+}
+
+const { lang, class: className } = Astro.props;
+const t = useTranslations(lang);
+
+const links = [
+  { href: contact.github, label: t('contactGithub') },
+  { href: `mailto:${contact.email}`, label: contact.email },
+  { href: contact.store, label: t('contactStore') },
+];
+---
+
+<ul class:list={['flex flex-wrap gap-2', className]}>
+  {
+    links.map((link) => (
+      <li>
+        <a
+          class="inline-flex min-h-11 items-center rounded-full border border-line bg-white px-4 text-sm font-medium text-ink outline-none hover:border-zinc-400 focus-visible:ring-2 focus-visible:ring-zinc-700"
+          href={link.href}
+        >
+          {link.label}
+        </a>
+      </li>
+    ))
+  }
+</ul>
