@@ -1,0 +1,31 @@
+---
+import IphoneMockup from '../IphoneMockup.astro';
+
+interface Item {
+  src: string;
+  stillSrc: string;
+  alt: string;
+  caption?: string;
+}
+
+interface Props {
+  label: string;
+  items: Item[];
+}
+
+const { label, items } = Astro.props;
+---
+
+<figure class="not-prose my-8" aria-label={label}>
+  <ul class="m-0 flex list-none gap-6 overflow-x-auto p-0 pb-3">
+    {items.map((item) => (
+      <li class="flex w-44 shrink-0 flex-col items-center gap-3 sm:w-52">
+        <IphoneMockup src={item.src} stillSrc={item.stillSrc} alt={item.alt} />
+        {item.caption && (
+          <span class="text-center text-sm leading-6 text-muted">{item.caption}</span>
+        )}
+      </li>
+    ))}
+  </ul>
+  <figcaption class="mt-3 text-sm leading-6 text-muted">{label}</figcaption>
+</figure>

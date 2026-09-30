@@ -1,11 +1,12 @@
 ---
 interface Props {
   src?: string;
+  stillSrc?: string;
   alt: string;
   class?: string;
 }
 
-const { src, alt, class: className } = Astro.props;
+const { src, stillSrc, alt, class: className } = Astro.props;
 ---
 
 <figure
@@ -22,7 +23,18 @@ const { src, alt, class: className } = Astro.props;
     </div>
     <div class="iphone-mockup__screen h-full overflow-hidden rounded-[1.65rem] bg-device-screen">
       {
-        src ? (
+        src && stillSrc ? (
+          <picture class="block h-full w-full">
+            <source media="(prefers-reduced-motion: reduce)" srcset={stillSrc} />
+            <img
+              src={src}
+              alt={alt}
+              loading="lazy"
+              decoding="async"
+              class="h-full w-full object-cover"
+            />
+          </picture>
+        ) : src ? (
           <img src={src} alt={alt} class="h-full w-full object-cover" />
         ) : (
           <slot>

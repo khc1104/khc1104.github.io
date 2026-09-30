@@ -26,9 +26,10 @@ import Callout from '../../../components/mdx/Callout.astro';
 import CaseStudyNav from '../../../components/mdx/CaseStudyNav.astro';
 import Figure from '../../../components/mdx/Figure.astro';
 import MetricGrid from '../../../components/mdx/MetricGrid.astro';
+import ScreenDemos from '../../../components/mdx/ScreenDemos.astro';
 import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
 import mvArchitecture from '../../../assets/projects/insulin-note/mv-architecture.png';
-import screens from '../../../assets/projects/insulin-note/screens.png';
+import screenFlow from '../../../assets/projects/insulin-note/screen-flow.jpg';
 
 <MetricGrid
   items={[
@@ -87,14 +88,45 @@ SwiftDataは高速な端末内記録と将来のiCloud連携を考えて選び�
   padded
 />
 
+<Figure
+  src={screenFlow}
+  alt="ロック画面ウィジェット、メイン画面の記録・設定シート、カレンダーの記録修正画面が、それぞれSwiftDataのInsulinRecordとInsulinSettingに保存される流れの図"
+  caption="画面遷移: ロック画面ウィジェット、メイン画面の記録シート、カレンダーで修正した記録は、すべてSwiftDataのInsulinRecord・InsulinSettingに保存されます。"
+  padded
+/>
+
 <h2 id="experience">主な体験と機能</h2>
 
 メイン画面では持効型・速効型インスリンを記録し、誤入力を修正・削除できます。初回起動時に基本設定を生成し、すぐに使い始められるようにしました。
 
-<Figure
-  src={screens}
-  alt="メイン画面、投与記録シート、カレンダーとダッシュボード、ホーム画面ウィジェット、ロック画面ウィジェットのキャプチャ"
-  caption="左から、メイン画面、投与記録シート、カレンダー・ダッシュボード、ホーム画面ウィジェット、ロック画面ウィジェット"
+<ScreenDemos
+  label="実際のアプリ画面の録画です。横にスクロールして見られます。"
+  items={[
+    {
+      src: '/projects/insulin-note/main.webp',
+      stillSrc: '/projects/insulin-note/main-still.webp',
+      alt: 'メイン画面で持効型インスリンの投与量を選んで記録し、持効型と速効型の記録の投与量と時刻を修正する場面',
+      caption: 'メイン画面',
+    },
+    {
+      src: '/projects/insulin-note/calendar.webp',
+      stillSrc: '/projects/insulin-note/calendar-still.webp',
+      alt: 'カレンダーで日付をタップしてその日の記録を開き、服薬率と曜日別の速効型投与パターンチャートを切り替える場面',
+      caption: 'カレンダー画面',
+    },
+    {
+      src: '/projects/insulin-note/home-widget.webp',
+      stillSrc: '/projects/insulin-note/home-widget-still.webp',
+      alt: 'ホーム画面の持効型・速効型ウィジェットのボタンをタップし、アプリを開かずに記録すると投与時刻が表示される場面',
+      caption: 'ホーム画面ウィジェットで記録',
+    },
+    {
+      src: '/projects/insulin-note/lock-widget.webp',
+      stillSrc: '/projects/insulin-note/lock-widget-still.webp',
+      alt: 'ロック画面ウィジェットのボタンで投与を記録すると、記録なしが投与時刻に変わる場面',
+      caption: 'ロック画面ウィジェットで記録',
+    },
+  ]}
 />
 
 カレンダーは単なる履歴ではなく、生活パターンを振り返る画面に拡張しました。投与日、服薬率、平均投与時刻に加え、速効型は時間と投与量の傾向をチャートで確認できます。ホーム画面から素早く記録し、ロック画面で直近時刻を確認することで、アプリを開く回数を減らしています。

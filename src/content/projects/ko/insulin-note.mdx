@@ -26,9 +26,10 @@ import Callout from '../../../components/mdx/Callout.astro';
 import CaseStudyNav from '../../../components/mdx/CaseStudyNav.astro';
 import Figure from '../../../components/mdx/Figure.astro';
 import MetricGrid from '../../../components/mdx/MetricGrid.astro';
+import ScreenDemos from '../../../components/mdx/ScreenDemos.astro';
 import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
 import mvArchitecture from '../../../assets/projects/insulin-note/mv-architecture.png';
-import screens from '../../../assets/projects/insulin-note/screens.png';
+import screenFlow from '../../../assets/projects/insulin-note/screen-flow.jpg';
 
 <MetricGrid
   items={[
@@ -87,14 +88,45 @@ SwiftData는 빠른 로컬 기록과 추후 iCloud 확장 가능성을 고려해
   padded
 />
 
+<Figure
+  src={screenFlow}
+  alt="잠금 화면 위젯, 메인 화면의 기록·설정 시트, 달력의 기록 수정 화면이 각각 SwiftData의 InsulinRecord와 InsulinSetting으로 저장되는 흐름도"
+  caption="화면 이동 동선: 잠금 화면 위젯, 메인 화면의 기록 시트, 달력에서 고친 기록이 모두 SwiftData의 InsulinRecord·InsulinSetting에 저장됩니다."
+  padded
+/>
+
 <h2 id="experience">핵심 경험과 기능</h2>
 
 메인 화면에서는 지효성·속효성 인슐린을 기록하고, 잘못 입력한 기록을 수정하거나 삭제할 수 있습니다. 앱 첫 실행 시 기본 인슐린 설정을 만들어 바로 사용할 수 있게 했습니다.
 
-<Figure
-  src={screens}
-  alt="메인 화면, 투여 기록 시트, 달력과 대시보드, 홈 화면 위젯, 잠금 화면 위젯 캡처"
-  caption="왼쪽부터 메인 화면, 투여 기록 시트, 달력·대시보드, 홈 화면 위젯, 잠금 화면 위젯"
+<ScreenDemos
+  label="실제 앱 화면 녹화. 가로로 넘겨 볼 수 있습니다."
+  items={[
+    {
+      src: '/projects/insulin-note/main.webp',
+      stillSrc: '/projects/insulin-note/main-still.webp',
+      alt: '메인 화면에서 지효성 인슐린 투여량을 골라 기록한 뒤, 지효성과 속효성 기록의 투여량과 시간을 수정하는 장면',
+      caption: '메인 화면',
+    },
+    {
+      src: '/projects/insulin-note/calendar.webp',
+      stillSrc: '/projects/insulin-note/calendar-still.webp',
+      alt: '달력에서 날짜를 눌러 그날의 기록을 열고, 복약률과 요일별 속효성 투여 패턴 차트를 바꿔 보는 장면',
+      caption: '캘린더 화면',
+    },
+    {
+      src: '/projects/insulin-note/home-widget.webp',
+      stillSrc: '/projects/insulin-note/home-widget-still.webp',
+      alt: '홈 화면의 지효성·속효성 위젯 버튼을 눌러 앱을 열지 않고 기록하자 투여 시각이 표시되는 장면',
+      caption: '홈 화면 위젯으로 기록',
+    },
+    {
+      src: '/projects/insulin-note/lock-widget.webp',
+      stillSrc: '/projects/insulin-note/lock-widget-still.webp',
+      alt: '잠금 화면 위젯의 버튼으로 투여를 기록하자 기록 없음이 투여 시각으로 바뀌는 장면',
+      caption: '잠금 화면 위젯으로 기록',
+    },
+  ]}
 />
 
 달력은 단순 기록 목록이 아니라 생활 패턴을 돌아보는 화면으로 확장했습니다. 투여일, 복약률, 평균 투여 시각을 보여 주고 속효성 인슐린은 시간과 투여량 패턴을 차트로 확인할 수 있습니다. 홈 화면 위젯에서는 빠르게 기록하고, 잠금 화면에서는 최근 투여 시각을 확인하게 해 앱에 들어가는 횟수를 줄였습니다.

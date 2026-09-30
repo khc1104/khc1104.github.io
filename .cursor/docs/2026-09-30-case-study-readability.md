@@ -29,7 +29,7 @@
 
 ## 다음에
 - KanjiMate 캡처를 `src/assets/projects/kanji-mate/shortcut.png`, `live-activity.png`, `wordbook.png`로 넣으면 화면 칸이 나타난다.
-- "화면 이동 동선" 이미지를 Notion에서 직접 내보내 `src/assets/projects/insulin-note/`에 넣고 설계 섹션에 `Figure`로 추가한다.
+- "화면 이동 동선" 이미지를 Notion에서 직접 내보내 `src/assets/projects/insulin-note/`에 넣고 설계 섹션에 `Figure`로 추가한다. (아래 섹션에서 완료)
 
 ## 읽는 순서
 1. `src/components/mdx/Figure.astro` — MDX 본문에서 쓰는 이미지 카드. `astro:assets`의 `<Image>`가 빌드 때 여러 크기의 webp를 만들고,
@@ -42,3 +42,44 @@
    본문 중간에 넣는다.
 5. `src/pages/[lang]/projects/[slug].astro` — 모든 프로젝트 상세를 그리는 동적 라우트.
    `.project-body >` 직계 자식 스타일로 문단 여백만 바꾸고 MDX 컴포넌트에는 영향을 주지 않는다.
+
+---
+
+# Insulin Note 화면 영상과 이동 동선
+
+- 날짜: 2026-09-30
+- Phase: n/a
+- 상태: 완료
+
+## 한 일
+- 사용자가 보낸 화면 이동 동선 그림을 Insulin Note 설계 섹션의 MV 구조도 아래에 넣었다.
+- Insulin Note GitHub README의 GIF 4개(메인, 캘린더, 홈 화면 위젯, 잠금 화면 위젯)를 움직이는 WebP로 바꿔 아이폰 프레임 안에서 재생한다. 합계 약 20MB에서 약 1.7MB로 줄었다.
+- 움직임 줄이기 설정에서는 각 영상의 첫 장면 정지 이미지를 보여 준다.
+- 핵심 기능 섹션의 5장 모음 이미지를 이 영상 4칸으로 대체했다.
+
+## 변경 파일
+- `src/assets/projects/insulin-note/screen-flow.jpg` — 화면 이동 동선 그림
+- `src/assets/projects/insulin-note/screens.png` — 삭제 (영상으로 대체)
+- `public/projects/insulin-note/{main,calendar,home-widget,lock-widget}.webp` — 움직이는 WebP (sharp, quality 70)
+- `public/projects/insulin-note/*-still.webp` — 첫 장면 정지 이미지
+- `src/components/IphoneMockup.astro` — `stillSrc`가 있으면 `picture`로 움직임 줄이기용 이미지 제공
+- `src/components/mdx/ScreenDemos.astro` — `public` 경로의 화면 녹화를 아이폰 프레임으로 가로 나열
+- `src/content/projects/{ko,ja}/insulin-note.mdx` — 동선 그림, 영상 4칸 배치
+
+## 확인
+- `npm run build` 통과 (18페이지). `dist/projects/insulin-note/`에 WebP 8개가 있다.
+- ko/ja Insulin Note 데스크톱·390px: 가로 넘침 없음, 영상 4개 로드·재생. `prefers-reduced-motion: reduce`에서 4개 모두 `*-still.webp`로 바뀜.
+- 영상 프레임을 뽑아 내용 확인 후 대체 텍스트를 맞췄다. 잠금 화면 영상은 확인이 아니라 위젯 버튼으로 기록하는 장면이라 캡션을 "잠금 화면 위젯으로 기록"으로 했다.
+- HIG: 대체 텍스트, 움직임 줄이기 존중, 아이폰 프레임은 iOS 화면에만 사용.
+- 남은 리스크: 녹화 화면 안의 다이내믹 아일랜드가 목업의 아일랜드와 겹친다(목업 쪽에 가려져 거의 보이지 않음).
+
+## 다음에
+- KanjiMate 캡처(`shortcut.png`, `live-activity.png`, `wordbook.png`)를 `src/assets/projects/kanji-mate/`에 넣기.
+
+## 읽는 순서
+1. `src/components/IphoneMockup.astro` — 아이폰 기기 프레임. `stillSrc`를 주면 `<picture>`의 `media` 조건으로
+   움직임 줄이기 사용자에게 정지 이미지를 준다(JS 없음).
+2. `src/components/mdx/ScreenDemos.astro` — MDX에서 쓰는 화면 녹화 줄. `public/` 파일은 Astro가 가공하지 않고
+   그대로 복사하므로 움직이는 WebP가 유지된다.
+3. `src/content/projects/ko/insulin-note.mdx` — `Figure`(빌드 때 최적화되는 `src/assets` 이미지)와
+   `ScreenDemos`(그대로 복사되는 `public` 파일)를 섹션별로 배치한다.
