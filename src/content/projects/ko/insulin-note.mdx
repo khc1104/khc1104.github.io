@@ -24,13 +24,16 @@ links:
 import ArchitectureFlow from '../../../components/mdx/ArchitectureFlow.astro';
 import Callout from '../../../components/mdx/Callout.astro';
 import CaseStudyNav from '../../../components/mdx/CaseStudyNav.astro';
+import Figure from '../../../components/mdx/Figure.astro';
 import MetricGrid from '../../../components/mdx/MetricGrid.astro';
 import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
+import mvArchitecture from '../../../assets/projects/insulin-note/mv-architecture.png';
+import screens from '../../../assets/projects/insulin-note/screens.png';
 
 <MetricGrid
   items={[
     { value: '5 → 1단계', label: '투여 기록 동선' },
-    { value: '16건', label: 'App Store 다운로드', detail: '2026-07-19 기준' },
+    { value: '26건', label: 'App Store 다운로드', detail: '2026-09-27 기준' },
     { value: 'iOS 17+', label: '지원 버전' },
     { value: '개인 개발', label: '기획부터 배포까지' },
   ]}
@@ -74,9 +77,25 @@ import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
 
 SwiftData는 빠른 로컬 기록과 추후 iCloud 확장 가능성을 고려해 선택했습니다. iOS 17 이상을 최소 버전으로 둔 이유도 SwiftData와 인터랙티브 위젯에 필요한 AppIntents를 사용하기 위해서입니다. 데이터 접근은 처음부터 완성된 구조가 아니었고, 실제 동기화 문제와 Swift 6 전환을 거치며 단일 컨텍스트에서 `ModelActor` 기반 구조로 발전했습니다.
 
+화면 쪽은 View와 Model만 두는 MV 패턴입니다. View는 사용자 입력을 받아 `ModelActor`에 요청만 보내고, 바뀐 Model이 다시 View의 상태를 갱신하는 한 방향 흐름입니다.
+
+<Figure
+  src={mvArchitecture}
+  alt="User에서 View, ModelActor, Model을 거쳐 다시 View로 돌아오는 MV 패턴 구조도"
+  caption="MV 패턴: View의 요청은 ModelActor를 거쳐 Model을 바꾸고, 바뀐 Model이 View를 다시 그립니다."
+  maxWidth="30rem"
+  padded
+/>
+
 <h2 id="experience">핵심 경험과 기능</h2>
 
 메인 화면에서는 지효성·속효성 인슐린을 기록하고, 잘못 입력한 기록을 수정하거나 삭제할 수 있습니다. 앱 첫 실행 시 기본 인슐린 설정을 만들어 바로 사용할 수 있게 했습니다.
+
+<Figure
+  src={screens}
+  alt="메인 화면, 투여 기록 시트, 달력과 대시보드, 홈 화면 위젯, 잠금 화면 위젯 캡처"
+  caption="왼쪽부터 메인 화면, 투여 기록 시트, 달력·대시보드, 홈 화면 위젯, 잠금 화면 위젯"
+/>
 
 달력은 단순 기록 목록이 아니라 생활 패턴을 돌아보는 화면으로 확장했습니다. 투여일, 복약률, 평균 투여 시각을 보여 주고 속효성 인슐린은 시간과 투여량 패턴을 차트로 확인할 수 있습니다. 홈 화면 위젯에서는 빠르게 기록하고, 잠금 화면에서는 최근 투여 시각을 확인하게 해 앱에 들어가는 횟수를 줄였습니다.
 
@@ -116,6 +135,12 @@ SwiftData는 빠른 로컬 기록과 추후 iCloud 확장 가능성을 고려해
 
 <h2 id="retrospective">성과와 회고</h2>
 
-잠금 화면에서 기록을 확인한 뒤 바로 투여하는 개인 루틴이 생겼고, “오늘 맞았는지 모르겠다”는 걱정을 줄일 수 있었습니다. 2026년 7월 19일 기준 App Store 다운로드는 16건입니다. 큰 숫자는 아니지만, 개인 문제에서 출발한 기능을 실제 배포 가능한 제품으로 끝까지 운영했다는 점에 의미가 있습니다.
+잠금 화면에서 기록을 확인한 뒤 바로 투여하는 개인 루틴이 생겼고, “오늘 맞았는지 모르겠다”는 걱정을 줄일 수 있었습니다. 2026년 9월 27일 기준 App Store 다운로드는 26건입니다. 큰 숫자는 아니지만, 개인 문제에서 출발한 기능을 실제 배포 가능한 제품으로 끝까지 운영했다는 점에 의미가 있습니다.
 
-이 프로젝트에서 가장 크게 배운 점은 기능보다 **반복 행동의 마찰과 데이터의 신뢰성**이 먼저라는 것입니다. 앞으로는 iCloud 동기화와 접근성 검증을 더하고, 기록 패턴이 실제 복약 습관에 어떤 도움을 주는지 장기적으로 확인하려 합니다.
+이 프로젝트에서 가장 크게 배운 점은 기능보다 **반복 행동의 마찰과 데이터의 신뢰성**이 먼저라는 것입니다. 다음 업데이트(1.2)에서는 아래 내용을 준비하고 있습니다.
+
+- **HealthKit 연동**: 투여 기록을 건강 앱에 저장하고, CGM 앱이 올린 혈당 기록을 가져와 어떤 상황에서 얼마나 투여했는지 돌아볼 수 있는 지표를 제공합니다.
+- **로컬라이징**: 최소한 영어와 일본어를 지원합니다.
+- **코드 정리**: 메서드가 많아진 `ModelActor`를 역할별 파일로 나눕니다.
+- **테스트**: Swift Testing으로 핵심 로직을 검증합니다.
+- **버그 수정**: 메인 화면에서 기록을 수정해도 화면에 바로 반영되지 않는 문제를 고칩니다.

@@ -24,13 +24,16 @@ links:
 import ArchitectureFlow from '../../../components/mdx/ArchitectureFlow.astro';
 import Callout from '../../../components/mdx/Callout.astro';
 import CaseStudyNav from '../../../components/mdx/CaseStudyNav.astro';
+import Figure from '../../../components/mdx/Figure.astro';
 import MetricGrid from '../../../components/mdx/MetricGrid.astro';
 import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
+import mvArchitecture from '../../../assets/projects/insulin-note/mv-architecture.png';
+import screens from '../../../assets/projects/insulin-note/screens.png';
 
 <MetricGrid
   items={[
     { value: '5 → 1ステップ', label: '投与記録の導線' },
-    { value: '16件', label: 'App Storeダウンロード', detail: '2026-07-19時点' },
+    { value: '26件', label: 'App Storeダウンロード', detail: '2026-09-27時点' },
     { value: 'iOS 17+', label: '対応バージョン' },
     { value: '個人開発', label: '企画から公開まで' },
   ]}
@@ -74,9 +77,25 @@ import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
 
 SwiftDataは高速な端末内記録と将来のiCloud連携を考えて選びました。iOS 17以上を下限にしたのも、SwiftDataとインタラクティブウィジェットに必要なAppIntentsを利用するためです。データアクセスは実際の同期不具合とSwift 6移行を経て、共有コンテキストから`ModelActor`中心の構造へ改善しました。
 
+画面側はViewとModelだけで構成するMVパターンです。Viewはユーザー操作を受けて`ModelActor`へ依頼するだけで、変更されたModelがViewの状態を更新する一方向の流れです。
+
+<Figure
+  src={mvArchitecture}
+  alt="UserからView、ModelActor、Modelを経てViewへ戻るMVパターンの構成図"
+  caption="MVパターン: Viewの依頼はModelActorを通してModelを変更し、変更されたModelがViewを再描画します。"
+  maxWidth="30rem"
+  padded
+/>
+
 <h2 id="experience">主な体験と機能</h2>
 
 メイン画面では持効型・速効型インスリンを記録し、誤入力を修正・削除できます。初回起動時に基本設定を生成し、すぐに使い始められるようにしました。
+
+<Figure
+  src={screens}
+  alt="メイン画面、投与記録シート、カレンダーとダッシュボード、ホーム画面ウィジェット、ロック画面ウィジェットのキャプチャ"
+  caption="左から、メイン画面、投与記録シート、カレンダー・ダッシュボード、ホーム画面ウィジェット、ロック画面ウィジェット"
+/>
 
 カレンダーは単なる履歴ではなく、生活パターンを振り返る画面に拡張しました。投与日、服薬率、平均投与時刻に加え、速効型は時間と投与量の傾向をチャートで確認できます。ホーム画面から素早く記録し、ロック画面で直近時刻を確認することで、アプリを開く回数を減らしています。
 
@@ -119,6 +138,12 @@ SwiftDataは高速な端末内記録と将来のiCloud連携を考えて選び�
 
 <h2 id="retrospective">成果と振り返り</h2>
 
-ロック画面で記録を確認してから投与する個人のルーティンができ、「今日打ったか分からない」という不安を減らせました。2026年7月19日時点でApp Storeのダウンロードは16件です。大きな数字ではありませんが、自分の課題から始めた機能を公開・運用できる製品まで完成させました。
+ロック画面で記録を確認してから投与する個人のルーティンができ、「今日打ったか分からない」という不安を減らせました。2026年9月27日時点でApp Storeのダウンロードは26件です。大きな数字ではありませんが、自分の課題から始めた機能を公開・運用できる製品まで完成させました。
 
-この開発で学んだのは、機能数よりも**反復行動の摩擦とデータへの信頼**が先にあるということです。今後はiCloud同期とアクセシビリティ検証を加え、記録パターンが服薬習慣に与える効果も長期的に確認したいと考えています。
+この開発で学んだのは、機能数よりも**反復行動の摩擦とデータへの信頼**が先にあるということです。次のアップデート(1.2)では、次の内容を準備しています。
+
+- **HealthKit連携**: 投与記録をヘルスケアアプリに保存し、CGMアプリが記録した血糖値を取り込んで、どんな状況でどれだけ投与したかを振り返れる指標を提供します。
+- **ローカライズ**: 少なくとも英語と日本語に対応します。
+- **コード整理**: メソッドが増えた`ModelActor`を役割ごとのファイルに分けます。
+- **テスト**: Swift Testingで主要ロジックを検証します。
+- **不具合修正**: メイン画面で記録を修正しても、すぐ画面に反映されない問題を直します。

@@ -184,13 +184,13 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
 
   .project-body > :global(ul) {
     list-style: disc;
-    margin-top: 1rem;
+    margin-top: 1.85rem;
     padding-left: 1.25rem;
   }
 
   .project-body > :global(ol) {
     list-style: decimal;
-    margin-top: 1rem;
+    margin-top: 1.85rem;
     padding-left: 1.25rem;
   }
 
@@ -200,8 +200,9 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
     max-width: 72ch;
   }
 
-  .project-body > :global(p + p) {
-    margin-top: 1rem;
+  .project-body > :global(p + p),
+  .project-body > :global(:is(ul, ol, table) + p) {
+    margin-top: 1.85rem;
   }
 
   .project-body > :global(:is(ul, ol) > li + li) {
@@ -223,7 +224,7 @@ const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
 
   .project-body > :global(table) {
     display: block;
-    margin-top: 1.25rem;
+    margin-top: 1.85rem;
     overflow-x: auto;
     width: 100%;
     font-size: 0.875rem;

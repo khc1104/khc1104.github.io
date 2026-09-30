@@ -1,0 +1,37 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  caption?: string;
+  maxWidth?: string;
+  padded?: boolean;
+}
+
+const { src, alt, caption, maxWidth = '48rem', padded = false } = Astro.props;
+---
+
+<figure class="not-prose my-8" style={`max-width: ${maxWidth}`}>
+  <a
+    class:list={[
+      'block overflow-hidden rounded-2xl border border-line bg-white outline-none focus-visible:ring-2 focus-visible:ring-zinc-700',
+      padded && 'p-5',
+    ]}
+    href={src.src}
+    target="_blank"
+    rel="noopener"
+  >
+    <Image
+      class="h-auto w-full"
+      src={src}
+      alt={alt}
+      widths={[480, 768, 1152, 1536]}
+      sizes={`(min-width: 768px) ${maxWidth}, 100vw`}
+      loading="lazy"
+      decoding="async"
+    />
+  </a>
+  {caption && <figcaption class="mt-3 text-sm leading-6 text-muted">{caption}</figcaption>}
+</figure>

@@ -1,0 +1,52 @@
+---
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+import IphoneMockup from '../IphoneMockup.astro';
+
+interface Item {
+  file: string;
+  alt: string;
+  caption?: string;
+}
+
+interface Props {
+  project: string;
+  label: string;
+  items: Item[];
+}
+
+const { project, label, items } = Astro.props;
+
+const assets = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/projects/*/*.{png,jpg,jpeg,webp}',
+  { eager: true },
+);
+
+const screens = await Promise.all(
+  items.flatMap((item) => {
+    const entry = Object.entries(assets).find(([path]) =>
+      path.endsWith(`/projects/${project}/${item.file}`),
+    );
+    if (!entry) return [];
+    return [getImage({ src: entry[1].default, width: 480 }).then((image) => ({ ...item, src: image.src }))];
+  }),
+);
+---
+
+{
+  screens.length > 0 && (
+    <figure class="not-prose my-8" aria-label={label}>
+      <ul class="m-0 flex list-none gap-6 overflow-x-auto p-0 pb-3">
+        {screens.map((screen) => (
+          <li class="flex w-44 shrink-0 flex-col items-center gap-3 sm:w-52">
+            <IphoneMockup src={screen.src} alt={screen.alt} />
+            {screen.caption && (
+              <span class="text-center text-sm leading-6 text-muted">{screen.caption}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+      <figcaption class="mt-3 text-sm leading-6 text-muted">{label}</figcaption>
+    </figure>
+  )
+}
