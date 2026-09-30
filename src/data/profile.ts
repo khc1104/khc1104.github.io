@@ -75,7 +75,7 @@ export const profiles: Record<Lang, Profile> = {
     ],
     certifications: [
       { period: '2026.06', title: 'SQLD', role: '한국데이터산업진흥원' },
-      { period: '2026.03', title: 'OPIc 영어', role: 'ACTFL' },
+      { period: '2026.03', title: 'OPIc iM1 영어', role: 'ACTFL' },
       { period: '2024.01', title: 'JLPT N1', role: '일본국제교류기금 · 일본국제교육지원협회' },
       { period: '2022.11', title: '정보처리기사', role: '과학기술정보통신부' },
     ],
@@ -133,7 +133,7 @@ export const profiles: Record<Lang, Profile> = {
     ],
     certifications: [
       { period: '2026.06', title: 'SQLD', role: '韓国データ産業振興院' },
-      { period: '2026.03', title: 'OPIc 英語', role: 'ACTFL' },
+      { period: '2026.03', title: 'OPIc iM1 英語', role: 'ACTFL' },
       { period: '2024.01', title: 'JLPT N1', role: '国際交流基金・日本国際教育支援協会' },
       { period: '2022.11', title: '情報処理技師', role: '韓国 科学技術情報通信部' },
     ],
