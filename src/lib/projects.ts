@@ -13,13 +13,17 @@ export function projectLang(id: string): string {
   return id.split('/')[0] ?? '';
 }
 
+function byNewest(a: ProjectEntry, b: ProjectEntry): number {
+  return b.data.startDate.getTime() - a.data.startDate.getTime();
+}
+
 function sortProjects(entries: ProjectEntry[]): ProjectEntry[] {
   return [...entries].sort((a, b) => {
     const featured = Number(Boolean(b.data.featured)) - Number(Boolean(a.data.featured));
     if (featured !== 0) {
       return featured;
     }
-    return projectSlug(a.id).localeCompare(projectSlug(b.id));
+    return byNewest(a, b);
   });
 }
 
@@ -35,8 +39,19 @@ export function featuredProjects(projects: ProjectEntry[]): ProjectEntry[] {
   return projects.filter((entry) => entry.data.featured === true);
 }
 
-export function otherProjects(projects: ProjectEntry[]): ProjectEntry[] {
-  return projects.filter((entry) => entry.data.featured !== true);
+export function homeProjects(projects: ProjectEntry[]): ProjectEntry[] {
+  return projects.filter((entry) => entry.data.featured !== true && entry.data.home === true);
+}
+
+export function groupByYear(
+  projects: ProjectEntry[],
+): { year: number; projects: ProjectEntry[] }[] {
+  const groups = new Map<number, ProjectEntry[]>();
+  for (const entry of [...projects].sort(byNewest)) {
+    const year = entry.data.startDate.getUTCFullYear();
+    groups.set(year, [...(groups.get(year) ?? []), entry]);
+  }
+  return [...groups].map(([year, entries]) => ({ year, projects: entries }));
 }
 
 export async function getPublishedProjects(): Promise<ProjectEntry[]> {

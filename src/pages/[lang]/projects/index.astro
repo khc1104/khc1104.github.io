@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SectionHeader from '../../../components/SectionHeader.astro';
+import ProjectList from '../../../components/ProjectList.astro';
+import { isLang, locales, useTranslations } from '../../../i18n/utils';
+import type { Lang } from '../../../i18n/ui';
+import { getProjectsByLang, groupByYear } from '../../../lib/projects';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang: langParam } = Astro.params;
+
+if (!langParam || !isLang(langParam)) {
+  return Astro.redirect('/404');
+}
+
+const lang: Lang = langParam;
+const t = useTranslations(lang);
+const groups = groupByYear(await getProjectsByLang(lang));
+---
+
+<BaseLayout
+  lang={lang}
+  title={`${t('allProjectsTitle')} · ${t('siteName')}`}
+  description={t('allProjectsDescription')}
+>
+  <h1 class="text-3xl font-semibold tracking-tight">{t('allProjectsTitle')}</h1>
+
+  {
+    groups.length === 0 ? (
+      <p class="mt-8 text-muted">{t('emptyProjects')}</p>
+    ) : (
+      groups.map(({ year, projects }) => (
+        <section class="mt-12 space-y-4" aria-labelledby={`year-${year}`}>
+          <SectionHeader headingId={`year-${year}`} title={String(year)} />
+          <ProjectList lang={lang} projects={projects} emptyLabel={t('emptyProjects')} />
+        </section>
+      ))
+    )
+  }
+</BaseLayout>

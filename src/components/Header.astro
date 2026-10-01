@@ -11,7 +11,7 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const next = otherLang(lang);
 const homeHref = getRelativeLocaleUrl(lang, '/');
-const projectsHref = `${homeHref}#projects`;
+const projectsHref = getRelativeLocaleUrl(lang, '/projects/');
 const switchHref = getRelativeLocaleUrl(next, pathWithoutLocale(Astro.url.pathname, lang));
 ---
 

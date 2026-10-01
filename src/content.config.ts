@@ -9,6 +9,8 @@ const projects = defineCollection({
     platform: z.enum(['ios', 'android', 'web']),
     summary: z.string(),
     period: z.string().optional(),
+    startDate: z.coerce.date(),
+    home: z.boolean().optional(),
     role: z.string().optional(),
     stack: z.array(z.string()),
     featured: z.boolean().optional(),

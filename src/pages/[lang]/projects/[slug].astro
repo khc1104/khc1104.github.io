@@ -38,7 +38,7 @@ const lang: Lang = langParam;
 const t = useTranslations(lang);
 const { Content } = await render(entry);
 const shot = firstScreenshot(entry);
-const listHref = `${getRelativeLocaleUrl(lang, '/')}#projects`;
+const listHref = getRelativeLocaleUrl(lang, '/projects/');
 const { title, summary, period, role, stack, highlights, links, platform } = entry.data;
 const isWeb = platform === 'web';
 const frameClass = isWeb ? 'w-full max-w-xl' : 'w-40 sm:w-52';
