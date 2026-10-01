@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SectionHeader from '../../components/SectionHeader.astro';
 import ProjectGrid from '../../components/ProjectGrid.astro';
+import ProjectList from '../../components/ProjectList.astro';
 import ProfilePhoto from '../../components/ProfilePhoto.astro';
 import ContactLinks from '../../components/ContactLinks.astro';
 import SkillGroups from '../../components/SkillGroups.astro';
@@ -77,7 +78,7 @@ const ogShot = ogSource ? firstScreenshot(ogSource) : undefined;
     others.length > 0 && (
       <section class="mt-16 space-y-4" aria-labelledby="others-heading">
         <SectionHeader headingId="others-heading" title={t('otherProjectsTitle')} />
-        <ProjectGrid lang={lang} projects={others} emptyLabel={t('emptyProjects')} />
+        <ProjectList lang={lang} projects={others} emptyLabel={t('emptyProjects')} />
       </section>
     )
   }

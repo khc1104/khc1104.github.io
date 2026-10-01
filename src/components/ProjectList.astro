@@ -1,0 +1,68 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import type { Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
+import {
+  firstScreenshot,
+  platformLabelKey,
+  projectSlug,
+  type ProjectEntry,
+} from '../lib/projects';
+
+interface Props {
+  lang: Lang;
+  projects: ProjectEntry[];
+  emptyLabel: string;
+}
+
+const { lang, projects, emptyLabel } = Astro.props;
+const t = useTranslations(lang);
+---
+
+{
+  projects.length === 0 ? (
+    <p class="text-muted">{emptyLabel}</p>
+  ) : (
+    <ul class="m-0 grid list-none gap-3 p-0 md:grid-cols-2">
+      {projects.map((project) => {
+        const shot = firstScreenshot(project);
+        const slug = projectSlug(project.id);
+        const platform = project.data.platform;
+        const platformLabel = t(platformLabelKey(platform));
+        const thumbClass = platform === 'web' ? 'h-12 w-16' : 'h-16 w-12';
+        return (
+          <li>
+            <a
+              class="flex h-full items-center gap-4 rounded-2xl border border-line bg-white p-4 outline-none transition-colors hover:border-zinc-400 focus-visible:ring-2 focus-visible:ring-zinc-700"
+              href={getRelativeLocaleUrl(lang, `/projects/${slug}`)}
+            >
+              {shot ? (
+                <img
+                  class:list={['shrink-0 rounded-lg border border-line object-cover object-top', thumbClass]}
+                  src={shot.src}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+              ) : (
+                <span
+                  class:list={['flex shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-xs font-medium text-muted', thumbClass]}
+                  aria-hidden="true"
+                >
+                  {platformLabel}
+                </span>
+              )}
+              <span class="min-w-0 flex-1 space-y-1">
+                <span class="block text-xs font-medium tracking-wide text-muted">{platformLabel}</span>
+                <span class="block font-semibold tracking-tight">{project.data.title}</span>
+                <span class="line-clamp-2 text-sm text-muted">{project.data.summary}</span>
+                <span class="block truncate text-xs text-muted">{project.data.stack.join(' · ')}</span>
+              </span>
+              <span class="shrink-0 text-xl leading-none text-zinc-400" aria-hidden="true">›</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  )
+}
