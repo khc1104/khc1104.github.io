@@ -22,6 +22,11 @@
 - HIG: 아이폰 프레임은 iOS 앱 화면에만 사용, 대체 텍스트 있음.
 - 잠금 화면 캡처에 Insulin Note 잠금 화면 위젯이 함께 보인다. 사용자 확인 후 그대로 두었다.
 
+## 대표 이미지 추가
+- 홈 카드, 상세 페이지 오른쪽 목업, 공유 미리보기(og:image)는 frontmatter `appScreenshots` 첫 항목을 쓰는데 KanjiMate에는 없어 비어 있었다.
+- `public/projects/kanji-mate/cover.jpg`(Dynamic Island 카드), `screen.jpg`(잠금 화면 카드)를 추가하고 ko/ja frontmatter에 연결했다.
+- `npm run build` 통과. ko 홈 카드, ja 상세 페이지에서 `cover.jpg`가 로드되는 것을 확인했다.
+
 ## 다음에
 - 없음
 
