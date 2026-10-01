@@ -26,6 +26,10 @@
 - 변경: `src/assets/profile.jpg`, `src/components/ProfilePhoto.astro`(감싸는 칸 + 꽉 채우는 이미지), `src/pages/[lang]/index.astro`(히어로 `sm:items-stretch`).
 - 확인: `npm run build` 통과. ko 데스크톱에서 사진과 글 묶음이 같은 높이(312px), ja는 글이 길어 사진도 함께 길어짐, 390px에서 144×192, 가로 넘침 없음.
 
+## 언어별 크기 통일
+- 글 높이에 맞춰 늘리는 방식은 일본어 소개가 길어 사진 크기가 언어마다 달랐다. 데스크톱 사진을 고정 240×320(3:4)으로 바꾸고 히어로를 다시 `sm:items-start`로 돌렸다.
+- 확인: `npm run build` 통과. 사진은 ko/ja 모두 240×320, 글 묶음은 ko 312px·ja 340px로 높이가 비슷하다.
+
 ## 다음에
 - 정식 프로필 사진이 생기면 `src/assets/profile.jpg` 교체
 

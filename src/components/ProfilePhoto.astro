@@ -16,7 +16,7 @@ const photos = import.meta.glob<{ default: ImageMetadata }>(
 );
 const photo = Object.values(photos)[0]?.default;
 const frame =
-  'relative aspect-[3/4] w-36 shrink-0 overflow-hidden rounded-2xl border border-line sm:aspect-auto sm:min-h-56 sm:w-60';
+  'relative aspect-[3/4] w-36 shrink-0 overflow-hidden rounded-2xl border border-line sm:w-60';
 ---
 
 {
