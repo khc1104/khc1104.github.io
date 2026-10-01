@@ -19,6 +19,13 @@
 - 얼굴이 자세하지 않아도 된다는 요청에 따라 잘라내기를 360×480으로 넓혔다. 머리부터 정강이까지와 뒤 기둥이 함께 보인다.
 - `src/assets/profile.jpg` 교체, `npm run build` 통과, 브라우저 확인.
 
+## 사진 키우기
+- 데스크톱에서 사진 폭을 160px에서 240px로 키우고, 높이를 왼쪽 글 묶음(이름부터 연락 버튼까지)에 맞췄다. 최소 높이는 224px.
+- 모바일은 글 위 3:4, 폭 144px(전 112px).
+- 원본을 폭 전체로 넓게 잘라(576×724) 아치와 기둥이 보이게 했고, 칸 비율에 맞춰 `object-[50%_70%]`로 사람 쪽을 맞춘다.
+- 변경: `src/assets/profile.jpg`, `src/components/ProfilePhoto.astro`(감싸는 칸 + 꽉 채우는 이미지), `src/pages/[lang]/index.astro`(히어로 `sm:items-stretch`).
+- 확인: `npm run build` 통과. ko 데스크톱에서 사진과 글 묶음이 같은 높이(312px), ja는 글이 길어 사진도 함께 길어짐, 390px에서 144×192, 가로 넘침 없음.
+
 ## 다음에
 - 정식 프로필 사진이 생기면 `src/assets/profile.jpg` 교체
 

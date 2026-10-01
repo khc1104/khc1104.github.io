@@ -15,19 +15,22 @@ const photos = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true },
 );
 const photo = Object.values(photos)[0]?.default;
-const frame = 'aspect-[3/4] w-28 overflow-hidden rounded-2xl border border-line sm:w-40';
+const frame =
+  'relative aspect-[3/4] w-36 shrink-0 overflow-hidden rounded-2xl border border-line sm:aspect-auto sm:min-h-56 sm:w-60';
 ---
 
 {
   photo ? (
-    <Image
-      class:list={[frame, 'object-cover', className]}
-      src={photo}
-      alt={alt}
-      widths={[224, 320, 480]}
-      sizes="(min-width: 640px) 160px, 112px"
-      loading="eager"
-    />
+    <div class:list={[frame, className]}>
+      <Image
+        class="absolute inset-0 h-full w-full object-cover object-[50%_70%]"
+        src={photo}
+        alt={alt}
+        widths={[288, 480, 576]}
+        sizes="(min-width: 640px) 240px, 144px"
+        loading="eager"
+      />
+    </div>
   ) : (
     <div
       class:list={[frame, 'flex items-center justify-center bg-zinc-100', className]}
