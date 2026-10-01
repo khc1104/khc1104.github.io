@@ -9,7 +9,36 @@ stack:
   - SwiftUI
 links:
   github: https://github.com/APP-iOS6/Prototype-Timoney
+appScreenshots:
+  - src: /projects/timoney/cover.jpg
+    alt: これまでに貯まった金額360,000ウォン、Apple Watchの目標達成率100%と購入ボタンが表示されたTimoneyのメイン画面
 ---
+
+import ScreenDemos from '../../../components/mdx/ScreenDemos.astro';
+
+<ScreenDemos
+  label="実際のアプリ画面の録画です。最初の枠が担当した初期設定の流れです。横にスクロールできます。"
+  items={[
+    {
+      src: '/projects/timoney/setup.webp',
+      stillSrc: '/projects/timoney/setup-still.webp',
+      alt: '初回案内のあと給料期間と月給を入力し、ウィッシュアイテムを検索して登録してからメイン画面へ進む様子',
+      caption: '初期設定',
+    },
+    {
+      src: '/projects/timoney/main.webp',
+      stillSrc: '/projects/timoney/main-still.webp',
+      alt: '貯まった金額が増えるにつれてウィッシュアイテムの達成率バーが伸び、100%で表示される購入ボタンから購入ページを開く様子',
+      caption: 'メイン画面',
+    },
+    {
+      src: '/projects/timoney/wishlist.webp',
+      stillSrc: '/projects/timoney/wishlist-still.webp',
+      alt: 'ウィッシュリストのグリッドでアイテムごとの進捗を確認し、並べ替えと削除を編集してから写真を選んで新しいアイテムを追加する様子',
+      caption: 'ウィッシュリスト',
+    },
+  ]}
+/>
 
 ## 担当
 

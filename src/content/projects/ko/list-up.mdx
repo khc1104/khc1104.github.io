@@ -9,9 +9,36 @@ stack:
   - UIKit
 links:
   github: https://github.com/APP-iOS6/Prototype-team2-ListUp
+appScreenshots:
+  - src: /projects/list-up/cover.jpg
+    alt: 할인·프로모션·SNS·카테고리 탭과 특가구원 배너, 쇼핑몰 목록이 보이는 ListUp 메인 화면
 ---
 
+import ScreenDemos from '../../../components/mdx/ScreenDemos.astro';
+
 여러 쇼핑몰의 할인·쿠폰·사은품이 흩어져 있어, 관심 카테고리와 키워드 행사를 한 앱에서 모아 보게 하려는 UIKit 프로토타입이었습니다.
+
+<ScreenDemos
+  label="첫 칸은 실제 앱 화면 녹화, 나머지는 캡처입니다. 가로로 넘겨 볼 수 있습니다."
+  items={[
+    {
+      src: '/projects/list-up/flow.webp',
+      stillSrc: '/projects/list-up/flow-still.webp',
+      alt: '메인 화면에서 할인 행사 목록, 행사 상세, 키워드 검색, 쇼핑몰 행사 웹 페이지로 차례로 이동하는 장면',
+      caption: '메인 흐름',
+    },
+    {
+      src: '/projects/list-up/home.webp',
+      alt: '할인·프로모션·SNS·카테고리 탭 아래 특가구원 배너와 옥션·쿠팡·이마트·G마켓 쇼핑몰 목록, 추천 목록이 있는 메인 화면',
+      caption: '메인 화면',
+    },
+    {
+      src: '/projects/list-up/alerts.webp',
+      alt: '알림 목록에서 쇼핑몰(네이버 쇼핑·쿠팡·11번가 등)과 도서(예스24·리디북스 등) 키워드를 체크해 고르는 화면',
+      caption: '알림 키워드 설정',
+    },
+  ]}
+/>
 
 ## 담당
 

@@ -9,9 +9,38 @@ stack:
   - SwiftUI
 links:
   github: https://github.com/APP-iOS6/Prototype-Timoney
+appScreenshots:
+  - src: /projects/timoney/cover.jpg
+    alt: 지금까지 모인 금액 360,000원과 애플워치 목표 달성률 100%, 구매하기 버튼이 보이는 Timoney 메인 화면
 ---
 
+import ScreenDemos from '../../../components/mdx/ScreenDemos.astro';
+
 월급과 급여일을 기준으로 지금까지 번 돈을 실시간으로 환산하고, 위시리스트 목표까지 남은 금액을 보여 주려는 SwiftUI 프로토타입이었습니다.
+
+<ScreenDemos
+  label="실제 앱 화면 녹화. 첫 칸이 제가 맡은 초기 설정 흐름입니다. 가로로 넘겨 볼 수 있습니다."
+  items={[
+    {
+      src: '/projects/timoney/setup.webp',
+      stillSrc: '/projects/timoney/setup-still.webp',
+      alt: '첫 실행 안내 뒤 급여 기간과 월급을 입력하고, 위시 아이템을 검색해 등록한 다음 메인 화면으로 넘어가는 장면',
+      caption: '초기 설정',
+    },
+    {
+      src: '/projects/timoney/main.webp',
+      stillSrc: '/projects/timoney/main-still.webp',
+      alt: '지금까지 모인 금액이 올라가며 위시 아이템 달성률 막대가 채워지고, 100%가 되면 구매하기 버튼으로 구매 페이지를 여는 장면',
+      caption: '메인 화면',
+    },
+    {
+      src: '/projects/timoney/wishlist.webp',
+      stillSrc: '/projects/timoney/wishlist-still.webp',
+      alt: '위시리스트 그리드에서 아이템별 진행률을 보고, 순서와 삭제를 편집한 뒤 사진을 골라 새 아이템을 추가하는 장면',
+      caption: '위시리스트',
+    },
+  ]}
+/>
 
 ## 담당
 

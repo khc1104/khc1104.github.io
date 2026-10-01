@@ -11,7 +11,22 @@ stack:
   - EventKit
 links:
   github: https://github.com/APP-iOS6/PetMate
+appScreenshots:
+  - src: /projects/pet-mate/cover.jpg
+    alt: 預かりメイト探しと散歩メイト探しのボタン、メイトのレビュー、近くの犬の一覧があるPetMateのホーム画面
 ---
+
+import ScreenGallery from '../../../components/mdx/ScreenGallery.astro';
+
+<ScreenGallery
+  project="pet-mate"
+  label="担当したホーム、フィルタ付き一覧、投稿詳細の画面です。"
+  items={[
+    { file: 'home.jpg', alt: '預かりメイト探しと散歩メイト探しのボタン、メイトのレビュー、近くの犬の一覧があるホーム画面', caption: 'ホーム' },
+    { file: 'care-list.jpg', alt: '犬・猫・その他のタブと小型犬・中型犬・大型犬・子犬のフィルタの下に預かり投稿カードが表示された一覧', caption: '預かり一覧のフィルタ' },
+    { file: 'post.jpg', alt: '「散歩してください」投稿の詳細にペットの写真とプロフィール、性格タグ、申し込むボタンがある画面', caption: '投稿詳細' },
+  ]}
+/>
 
 ## 担当
 

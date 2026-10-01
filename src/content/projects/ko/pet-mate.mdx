@@ -11,9 +11,24 @@ stack:
   - EventKit
 links:
   github: https://github.com/APP-iOS6/PetMate
+appScreenshots:
+  - src: /projects/pet-mate/cover.jpg
+    alt: 돌봄 메이트 찾기와 산책 메이트 찾기 버튼, 메이트 후기, 내 주변 반려견 목록이 있는 PetMate 홈 화면
 ---
 
+import ScreenGallery from '../../../components/mdx/ScreenGallery.astro';
+
 반려동물을 혼자 두어야 할 때 돌봄·산책을 맡길 메이트를 찾는 팀 앱입니다. Firebase 위에 매칭·프로필·채팅을 올렸습니다.
+
+<ScreenGallery
+  project="pet-mate"
+  label="제가 맡은 홈, 필터 목록, 게시글 상세 화면입니다."
+  items={[
+    { file: 'home.jpg', alt: '돌봄 메이트 찾기와 산책 메이트 찾기 버튼, 메이트 후기, 내 주변 반려견 목록이 있는 홈 화면', caption: '홈' },
+    { file: 'care-list.jpg', alt: '강아지·고양이·그 외 탭과 소형견·중형견·대형견·아기 필터 아래 돌봄 게시글 카드가 보이는 목록', caption: '돌봄 목록 필터' },
+    { file: 'post.jpg', alt: '산책해주세요 게시글 상세에 반려동물 사진과 프로필, 성격 태그, 신청하기 버튼이 있는 화면', caption: '게시글 상세' },
+  ]}
+/>
 
 ## 담당
 

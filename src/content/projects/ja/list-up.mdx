@@ -9,7 +9,34 @@ stack:
   - UIKit
 links:
   github: https://github.com/APP-iOS6/Prototype-team2-ListUp
+appScreenshots:
+  - src: /projects/list-up/cover.jpg
+    alt: 割引・プロモーション・SNS・カテゴリのタブと特価バナー、モール一覧が表示されたListUpのメイン画面
 ---
+
+import ScreenDemos from '../../../components/mdx/ScreenDemos.astro';
+
+<ScreenDemos
+  label="最初の枠は実際のアプリ画面の録画、残りはスクリーンショットです。横にスクロールできます。"
+  items={[
+    {
+      src: '/projects/list-up/flow.webp',
+      stillSrc: '/projects/list-up/flow-still.webp',
+      alt: 'メイン画面から割引イベント一覧、イベント詳細、キーワード検索、モールのイベントWebページへ順に移動する様子',
+      caption: 'メインの流れ',
+    },
+    {
+      src: '/projects/list-up/home.webp',
+      alt: '割引・プロモーション・SNS・カテゴリのタブの下に特価バナー、Auction・Coupang・emart・Gmarketのモール一覧、おすすめ一覧があるメイン画面',
+      caption: 'メイン画面',
+    },
+    {
+      src: '/projects/list-up/alerts.webp',
+      alt: '通知一覧でモール（NAVERショッピング・Coupang・11番街など）と書籍（YES24・RIDIBOOKSなど）のキーワードにチェックを入れて選ぶ画面',
+      caption: '通知キーワード設定',
+    },
+  ]}
+/>
 
 ## 担当
 

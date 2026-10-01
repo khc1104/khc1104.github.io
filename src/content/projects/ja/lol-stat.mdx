@@ -12,7 +12,23 @@ stack:
   - Keychain
 links:
   github: https://github.com/khc1104/LolStat_Ios
+appScreenshots:
+  - src: /projects/lol-stat/cover.jpg
+    alt: ソロランク シルバーI 52LPと直近の試合ごとのチャンピオン・KDA一覧が表示されたLolStatのサモナー情報画面
 ---
+
+import ScreenGallery from '../../../components/mdx/ScreenGallery.astro';
+
+<ScreenGallery
+  project="lol-stat"
+  label="サモナーを検索して戦績を見て、デュオ掲示板で一緒にプレイする人を探す流れです。"
+  items={[
+    { file: 'search.png', alt: 'サモナー名#タグの入力欄の下に最近検索したサモナー一覧がある検索画面', caption: 'サモナー検索' },
+    { file: 'summoner.png', alt: 'ソロランクのティアとLP、直近のKDA、試合ごとのチャンピオンとKDA一覧が表示されたサモナー情報画面', caption: 'サモナー情報' },
+    { file: 'duo.png', alt: 'マッチング状態とキュー種別のフィルタの下に、ティア・メインポジション・募集ポジションが書かれたデュオ募集の投稿一覧', caption: 'デュオ掲示板' },
+    { file: 'duo-detail.png', alt: 'デュオ投稿の詳細シートにティア、募集ティア、メインポジション、募集ポジション、キュータイプ、メモが表示された画面', caption: 'デュオ投稿の詳細' },
+  ]}
+/>
 
 ## 担当
 

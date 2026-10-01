@@ -12,9 +12,25 @@ stack:
   - Keychain
 links:
   github: https://github.com/khc1104/LolStat_Ios
+appScreenshots:
+  - src: /projects/lol-stat/cover.jpg
+    alt: 솔로 랭크 실버 I 52LP와 최근 경기별 챔피언·KDA 목록이 보이는 LolStat 소환사 정보 화면
 ---
 
+import ScreenGallery from '../../../components/mdx/ScreenGallery.astro';
+
 Riot Games API로 소환사 전적을 검색하고, JWT 인증으로 듀오를 찾는 커뮤니티를 한 앱에 담았습니다. SwiftUI와 TCA(단방향 데이터 흐름)를 익히기 위한 개인 학습 프로젝트입니다.
+
+<ScreenGallery
+  project="lol-stat"
+  label="소환사를 검색해 전적을 보고, 듀오 게시판에서 함께할 사람을 찾는 흐름입니다."
+  items={[
+    { file: 'search.png', alt: '소환사 이름#태그 입력칸 아래 최근 검색한 소환사 목록이 있는 검색 화면', caption: '소환사 검색' },
+    { file: 'summoner.png', alt: '솔로 랭크 티어와 LP, 최근 KDA, 경기별 챔피언과 KDA 목록이 보이는 소환사 정보 화면', caption: '소환사 정보' },
+    { file: 'duo.png', alt: '매칭 상태와 큐 종류 필터 아래 티어·주 포지션·찾는 포지션이 적힌 듀오 모집 글 목록', caption: '듀오 게시판' },
+    { file: 'duo-detail.png', alt: '듀오 글 상세 시트에 티어, 찾는 티어, 주 포지션, 찾는 포지션, 큐 타입, 메모가 표시된 화면', caption: '듀오 글 상세' },
+  ]}
+/>
 
 ## 담당
 
