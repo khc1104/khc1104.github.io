@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "pdf": "node scripts/export-pdf.mjs",
     "astro": "astro"
   },
   "dependencies": {

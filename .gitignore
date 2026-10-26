@@ -1,5 +1,7 @@
 # build output
 dist/
+# application PDF (npm run pdf)
+export/
 # generated types
 .astro/
 

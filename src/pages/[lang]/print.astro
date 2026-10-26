@@ -1,0 +1,157 @@
+---
+import { render } from 'astro:content';
+import PrintLayout from '../../layouts/PrintLayout.astro';
+import HistoryList from '../../components/HistoryList.astro';
+import SkillGroups from '../../components/SkillGroups.astro';
+import TechBadge from '../../components/TechBadge.astro';
+import { profiles } from '../../data/profile';
+import { contact } from '../../data/contact';
+import { isLang, locales, useTranslations } from '../../i18n/utils';
+import type { Lang } from '../../i18n/ui';
+import { getProjectsByLang, platformLabelKey, projectSlug } from '../../lib/projects';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang: langParam } = Astro.params;
+
+if (!langParam || !isLang(langParam)) {
+  return Astro.redirect('/404');
+}
+
+const lang: Lang = langParam;
+const t = useTranslations(lang);
+const profile = profiles[lang];
+const projects = await Promise.all(
+  (await getProjectsByLang(lang)).map(async (entry) => {
+    const { Content } = await render(entry);
+    return { entry, Content };
+  }),
+);
+const pageTitle = `${t('siteName')} · ${t('heroTitle')}`;
+---
+
+<PrintLayout lang={lang} title={pageTitle} description={profile.intro[0]}>
+  <header>
+    <h1>{t('siteName')}</h1>
+    <p class="mt-1 text-[13pt] font-medium">{t('heroTitle')}</p>
+    <p class="mt-4 max-w-2xl space-y-2 leading-7">
+      {
+        profile.intro.map((line) => (
+          <span class="mt-2 block first:mt-0">{line}</span>
+        ))
+      }
+    </p>
+    <p class="mt-4 text-sm">
+      <a class="print-url" href={contact.github}>
+        {t('contactGithub')}
+      </a>
+    </p>
+  </header>
+
+  <section class="mt-8" aria-labelledby="stack-heading">
+    <h2 id="stack-heading">{t('stackTitle')}</h2>
+    <div class="mt-3">
+      <SkillGroups groups={profile.skills} />
+    </div>
+  </section>
+
+  <nav class="mt-8" aria-labelledby="toc-heading">
+    <h2 id="toc-heading">{t('printToc')}</h2>
+    <ol class="mt-3 list-decimal space-y-1 pl-5">
+      {
+        projects.map(({ entry }) => (
+          <li>
+            <a href={`#${projectSlug(entry.id)}`}>{entry.data.title}</a>
+            <span class="text-muted"> — {entry.data.summary}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+
+  {
+    projects.map(({ entry, Content }) => {
+      const slug = projectSlug(entry.id);
+      const { title, summary, period, role, stack, highlights, links, platform } = entry.data;
+      return (
+        <article class="project-sheet" id={slug} aria-labelledby={`${slug}-title`}>
+          <header>
+            <p class="text-xs font-medium tracking-wide text-muted">{t(platformLabelKey(platform))}</p>
+            <h2 id={`${slug}-title`} class="mt-1">
+              {title}
+            </h2>
+            <p class="mt-2 text-muted">{summary}</p>
+            <dl class="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted">
+              {period && (
+                <div>
+                  <dt class="inline font-medium text-ink">{t('periodLabel')}: </dt>
+                  <dd class="inline">{period}</dd>
+                </div>
+              )}
+              {role && (
+                <div>
+                  <dt class="inline font-medium text-ink">{t('roleLabel')}: </dt>
+                  <dd class="inline">{role}</dd>
+                </div>
+              )}
+            </dl>
+            <div class="mt-3 flex flex-wrap gap-1.5">
+              {stack.map((label) => (
+                <TechBadge label={label} />
+              ))}
+            </div>
+            {links && (links.github || links.store || links.demo) && (
+              <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                {links.github && (
+                  <li>
+                    <a class="print-url" href={links.github}>
+                      {t('githubLabel')}
+                    </a>
+                  </li>
+                )}
+                {links.store && (
+                  <li>
+                    <a href={links.store}>{t('storeLabel')}</a>
+                  </li>
+                )}
+                {links.demo && (
+                  <li>
+                    <a class="print-url" href={links.demo}>
+                      {t('demoLabel')}
+                    </a>
+                  </li>
+                )}
+              </ul>
+            )}
+            {highlights && highlights.length > 0 && (
+              <section class="mt-4" aria-labelledby={`${slug}-highlights`}>
+                <h3 id={`${slug}-highlights`} class="text-sm font-semibold">
+                  {t('highlightsLabel')}
+                </h3>
+                <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-muted">
+                  {highlights.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </header>
+          <div class="project-body mt-6 text-muted">
+            <Content />
+          </div>
+        </article>
+      );
+    })
+  }
+
+  <section class="history-sheet" aria-labelledby="history-heading">
+    <h2 id="history-heading">{t('historyTitle')}</h2>
+    <div class="mt-4 space-y-6">
+      <HistoryList title={t('experienceTitle')} items={profile.experience} />
+      <HistoryList title={t('educationTitle')} items={profile.education} />
+      <HistoryList title={t('certificationsTitle')} items={profile.certifications} />
+    </div>
+  </section>
+</PrintLayout>

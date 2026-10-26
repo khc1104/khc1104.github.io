@@ -18,6 +18,12 @@ npm run preview
 
 `build`는 `./dist/`에 HTML을 만듭니다. `preview`로 빌드 결과를 확인합니다.
 
+지원용 A4 PDF는 이메일과 프로필 사진을 넣지 않습니다. 파일은 `export/portfolio-ko.pdf`에 생기며 Git에는 올리지 않습니다.
+
+```sh
+npm run pdf
+```
+
 ## 언어
 
 | 경로 | 언어 |

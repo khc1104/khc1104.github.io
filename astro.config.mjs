@@ -15,6 +15,7 @@ export default defineConfig({
   integrations: [
     mdx(),
     sitemap({
+      filter: (page) => !page.includes('/print'),
       i18n: {
         defaultLocale: 'ko',
         locales: {
