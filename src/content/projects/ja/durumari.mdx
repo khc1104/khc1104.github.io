@@ -14,6 +14,9 @@ stack:
   - WebSocket
   - PostgreSQL
   - Playwright
+appScreenshots:
+  - src: /projects/durumari/cover.png
+    alt: Agent接続状況・決定リクエスト・最近の変更・Contextウィジェットが並ぶDurumariダッシュボード画面
 links:
   demo: https://durumari.kr
 ---
@@ -21,8 +24,12 @@ links:
 import ArchitectureFlow from '../../../components/mdx/ArchitectureFlow.astro';
 import Callout from '../../../components/mdx/Callout.astro';
 import CaseStudyNav from '../../../components/mdx/CaseStudyNav.astro';
+import Figure from '../../../components/mdx/Figure.astro';
 import MetricGrid from '../../../components/mdx/MetricGrid.astro';
 import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
+import dashboardView from '../../../assets/projects/durumari/dashboard-view.png';
+import meetingStt from '../../../assets/projects/durumari/meeting-stt.png';
+import notificationsView from '../../../assets/projects/durumari/notifications.png';
 
 <MetricGrid
   items={[
@@ -74,6 +81,12 @@ Durumariは、複数のAIコーディングエージェント（Codex・Claude C
 - **送信信頼性**: 失敗チャンクの再試行（outbox）、送信失敗時の後続ブロック防止、終了pending数の厳密集計、実検証用テストページ（`#1014`）を実装
 - **時刻・ホスト制御**: 最短RTTからclock offsetを推定して不確実性範囲を超えた場合のみrevisionを更新し、適合判定のない端末はホスト選出申請を行わないよう制御
 
+<Figure
+  src={meetingStt}
+  alt="会議開設から録音・送信、処理ホスト世代、端末状態、音声WebSocketイベントログを一覧確認する会議STT実検証ページ"
+  caption="会議STT実検証ページ：9段階の進行状態・処理ホスト世代・チャンク送信/ACK・音声WebSocketログをリアルタイム確認します。"
+/>
+
 <h2 id="widgets-extension">ダッシュボードウィジェット・ブラウザ拡張・通知</h2>
 
 ### ダッシュボードウィジェット14種の刷新とドラッグ／リサイズ
@@ -81,9 +94,21 @@ Durumariは、複数のAIコーディングエージェント（Codex・Claude C
 - 最近の変更、決定リクエスト、ファイル、Context、固定ドキュメント、お気に入り、Agent接続状況、シークレット、共有スキル、メンバー、アーカイブ、用語集、ホワイトボード、ドキュメント関係グラフの**14ウィジェット**をサイズ別に実装しました。
 - ドラッグ時に押し出されたウィジェットが**右優先→空きがなければ下へ連鎖移動**する配置ロジック（`#898`, `#934`）、保存・設定中のリサイズハンドル制御（`#948`）、カード高さに応じて溢れた項目を自動で隠す `data-fit` 制御（`#877`）を実装しました。
 
+<Figure
+  src={dashboardView}
+  alt="Agent接続状況・決定リクエスト・メンバー・シークレット・最近の変更・Context・関係グラフ・ホワイトボードが並ぶDurumariダッシュボード"
+  caption="ダッシュボード刷新：14種ウィジェットをサイズ別仕様で再構築し、連鎖ドラッグ・リサイズ・溢れ制御を実装しました。"
+/>
+
 ### ブラウザ拡張オンボーディング・共通通知
 - インストール直後にPIN先入力と端末承認を設定タブ内で完結する3ステップオンボーディング（`#158`~`#169`）、サイト有効・ロック状態に応じたアイコン／バッジ切替、ロック解除後の入力欄復帰、Firefoxローカルビルド権限パターンを実装しました。
 - リクエスト通知を一覧要約し詳細へ遷移する**共通ベルポップオーバー（`#944`）**を実装し、下書き離脱ガードと既存招待バッジ数を維持するよう連携しました。
+
+<Figure
+  src={notificationsView}
+  alt="スペースホーム右上のベルアイコンから全体・未読フィルタとリクエスト通知一覧を表示する通知要約ポップオーバー"
+  caption="共通通知要約ウィンドウ：全体・未読フィルタ、リクエスト詳細遷移、下書き離脱ガードを連携しています。"
+/>
 
 <h2 id="troubleshooting">問題解決</h2>
 

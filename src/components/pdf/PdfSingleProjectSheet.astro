@@ -46,6 +46,16 @@ const resolvedScreens = data.screens
     )
   : [];
 
+const resolvedWebScreens = data.webScreens
+  ? await Promise.all(
+      data.webScreens.map(async (item) => ({
+        src: item.publicSrc ?? (await resolveAsset(item.assetFile)) ?? '',
+        alt: item.alt,
+        caption: item.caption,
+      })),
+    )
+  : [];
+
 const phoneSize = resolvedScreens.length <= 3 ? 'md' : 'sm';
 ---
 
@@ -151,6 +161,69 @@ const phoneSize = resolvedScreens.length <= 3 ? 'md' : 'sm';
           </a>
         </p>
       </section>
+    ) : resolvedWebScreens.length > 0 ? (
+      <div class="flex min-h-0 flex-col gap-3">
+        <section class="rounded-xl border border-line bg-zinc-50/70 p-3">
+          <h2 class="text-[11px] font-bold tracking-tight text-ink">{data.webScreensTitle}</h2>
+          <div class="mt-2 grid grid-cols-3 gap-2">
+            {resolvedWebScreens.map((screen) => (
+              <figure class="flex flex-col gap-1">
+                <div class="overflow-hidden rounded-lg border border-zinc-300 bg-white shadow-xs">
+                  <div class="flex items-center gap-1 border-b border-zinc-200 bg-zinc-100 px-1.5 py-1" aria-hidden="true">
+                    <span class="size-1.5 rounded-full bg-zinc-400"></span>
+                    <span class="size-1.5 rounded-full bg-zinc-400"></span>
+                    <span class="size-1.5 rounded-full bg-zinc-400"></span>
+                  </div>
+                  <div class="aspect-[16/10] overflow-hidden bg-zinc-50">
+                    <img
+                      src={screen.src}
+                      alt={screen.alt}
+                      loading="eager"
+                      decoding="sync"
+                      class="h-full w-full object-cover object-top"
+                    />
+                  </div>
+                </div>
+                <figcaption class="text-center text-[9.5px] font-medium text-muted">
+                  {screen.caption}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+
+        <section class="flex min-h-0 flex-1 flex-col justify-between rounded-xl border border-line bg-zinc-50/70 p-3">
+          <h2 class="text-[11px] font-bold tracking-tight text-ink">{data.modulesTitle}</h2>
+          <div class="my-auto grid grid-cols-2 gap-2.5 py-1.5">
+            {data.modules?.map((mod, idx) => (
+              <article class="flex flex-col justify-between rounded-xl border border-line bg-white p-2.5">
+                <div>
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-[9.5px] font-bold tabular-nums text-muted">
+                      0{idx + 1}
+                    </span>
+                    <span class="rounded border border-line bg-zinc-50 px-1.5 py-0.5 text-[9px] font-medium text-ink">
+                      {mod.tag}
+                    </span>
+                  </div>
+                  <h3 class="mt-1.5 text-[11.5px] font-bold tracking-tight text-ink">
+                    {mod.title}
+                  </h3>
+                  <p class="mt-1 text-[9.5px] leading-[1.45] text-muted">
+                    {mod.detail}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div class="flex items-center justify-between border-t border-line pt-1.5 text-[9.5px] text-muted">
+            <span>{stack.join(' · ')}</span>
+            <a href={webProjectUrl} class="font-medium text-ink underline underline-offset-2">
+              {copy.webDetailLink}
+            </a>
+          </div>
+        </section>
+      </div>
     ) : (
       <section class="flex min-h-0 flex-col justify-between rounded-xl border border-line bg-zinc-50/70 p-4">
         <h2 class="text-[11.5px] font-bold tracking-tight text-ink">{data.modulesTitle}</h2>

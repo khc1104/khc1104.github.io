@@ -14,6 +14,9 @@ stack:
   - WebSocket
   - PostgreSQL
   - Playwright
+appScreenshots:
+  - src: /projects/durumari/cover.png
+    alt: Agent 연결 현황, 결정 요청, 최근 변경, Context 모아보기 위젯이 배치된 Durumari 대시보드 화면
 links:
   demo: https://durumari.kr
 ---
@@ -21,8 +24,12 @@ links:
 import ArchitectureFlow from '../../../components/mdx/ArchitectureFlow.astro';
 import Callout from '../../../components/mdx/Callout.astro';
 import CaseStudyNav from '../../../components/mdx/CaseStudyNav.astro';
+import Figure from '../../../components/mdx/Figure.astro';
 import MetricGrid from '../../../components/mdx/MetricGrid.astro';
 import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
+import dashboardView from '../../../assets/projects/durumari/dashboard-view.png';
+import meetingStt from '../../../assets/projects/durumari/meeting-stt.png';
+import notificationsView from '../../../assets/projects/durumari/notifications.png';
 
 <MetricGrid
   items={[
@@ -74,6 +81,12 @@ Durumari는 여러 AI 코딩 에이전트(Codex, Claude Code, Cursor, Gemini CLI
 - **오디오 송신 신뢰성**: 실패 청크 재시도(outbox), 전송 실패 시 후속 청크 블로킹 방지, 종료 pending 카운트 정밀 계산, 실검증용 테스트 페이지(`#1014`) 구현
 - **시각·호스트 제어**: 최단 RTT로 참여자 간 clock offset을 추정해 불확실성 범위를 벗어날 때만 revision을 갱신하고, 호스트 적합 판정이 없는 기기는 선출 신청을 막도록 설계
 
+<Figure
+  src={meetingStt}
+  alt="회의 개설부터 녹음·전송, 처리 호스트 세대, 내 기기 상태, 오디오 소켓 이벤트 로그를 한눈에 확인하는 회의 STT 실검증 테스트 페이지"
+  caption="회의 STT 실검증 테스트 페이지: 9단계 진행 상태, 처리 호스트 세대, 청크 송신/ACK, 오디오 WebSocket 이벤트를 실시간으로 확인합니다."
+/>
+
 <h2 id="widgets-extension">대시보드 위젯 · 브라우저 확장 · 알림</h2>
 
 ### 대시보드 위젯 14종 개편 및 드래그·리사이즈
@@ -81,9 +94,21 @@ Durumari는 여러 AI 코딩 에이전트(Codex, Claude Code, Cursor, Gemini CLI
 - 최근 변경, 처리할 결정 요청, 파일, Context, 고정 문서, 즐겨찾기, Agent 연결 현황, 비밀값 보관함, 공용 스킬, 구성원, 보관 문서, 용어사전, 화이트보드, 문서 관계 그래프 등 **14개 위젯**을 크기별로 구현했습니다.
 - 드래그 시 밀린 위젯이 **오른쪽 우선 → 자리가 없으면 아래로 연쇄 이동**하는 배치 로직(`#898`, `#934`), 저장·설정 중 리사이즈 핸들 제어(`#948`), 카드 높이에 맞춰 넘치는 항목을 뒤에서부터 숨기는 `data-fit` 유틸(`#877`)을 구현했습니다.
 
+<Figure
+  src={dashboardView}
+  alt="Agent 연결 현황, 결정 요청, 구성원, 비밀값, 최근 변경, Context 모아보기, 문서 관계 그래프, 화이트보드 위젯이 배치된 Durumari 대시보드"
+  caption="대시보드 위젯 개편: 14종 위젯을 크기별 규격으로 재설계하고 드래그 연쇄 밀림·리사이즈·오버플로 맞춤을 적용했습니다."
+/>
+
 ### 브라우저 확장(자동완성) 온보딩 · 공용 알림
 - 확장 설치 직후 PIN 선입력과 기기 승인을 설정 탭에서 한 번에 끝내는 3단계 온보딩(`#158`~`#169`), 사이트 활성화·잠금 상태별 확장 아이콘·배지, 잠금 해제 후 입력칸 자동 복귀 및 Firefox 로컬 빌드 권한 패턴을 구현했습니다.
 - 여러 요청 알림을 한곳에 요약하고 상세 화면으로 이동하는 **공용 벨 팝오버(`#944`)**를 구현하고, 초안 편집 중 이탈 가드와 기존 초대 배지 카운트를 보존하도록 연동했습니다.
+
+<Figure
+  src={notificationsView}
+  alt="공간 홈 우측 상단 벨 아이콘에서 전체·읽지 않음 필터와 요청 알림 목록을 보여 주는 알림 요약 창"
+  caption="공용 알림 요약 창: 전체·읽지 않음 필터와 요청 상세 이동, 초안 이탈 가드를 연동했습니다."
+/>
 
 <h2 id="troubleshooting">문제 해결 경험</h2>
 

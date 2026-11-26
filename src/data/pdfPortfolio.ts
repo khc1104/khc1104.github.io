@@ -84,6 +84,8 @@ export interface PdfSingleData {
   highlightBody: string;
   screensTitle?: string;
   screens?: PdfScreenItem[];
+  webScreensTitle?: string;
+  webScreens?: PdfScreenItem[];
   modulesTitle?: string;
   modules?: { title: string; tag: string; detail: string }[];
   note?: string;
@@ -531,6 +533,12 @@ export const pdfProjectDetails: Record<Lang, Record<string, PdfProjectDetail>> =
       highlightLabel: '핵심 성과 & 협업 포인트',
       highlightBody:
         'React·TypeScript 프론트엔드, FastAPI·WebSocket 백엔드, 브라우저 확장을 넘나들며 실시간 오디오 스트림 경합(장치 교체·절전·종료)을 Fake Relay 자동 테스트로 검증했습니다.',
+      webScreensTitle: '주요 UI 화면 (대시보드 위젯 · 회의 STT 검증 · 알림 요약)',
+      webScreens: [
+        { publicSrc: '/projects/durumari/cover.png', alt: 'Durumari 대시보드 위젯 화면', caption: '대시보드 위젯 (14종)' },
+        { assetFile: 'meeting-stt.png', alt: '회의 STT 실검증 테스트 화면', caption: '회의 STT 실검증 화면' },
+        { assetFile: 'notifications.png', alt: '공용 알림 요약 창', caption: '알림 요약 팝오버' },
+      ],
       modulesTitle: '담당 아키텍처 모듈 (225 커밋)',
       modules: [
         {
@@ -927,6 +935,12 @@ export const pdfProjectDetails: Record<Lang, Record<string, PdfProjectDetail>> =
       highlightLabel: '成果・チーム開発ポイント',
       highlightBody:
         'React・FastAPI・WebSocket・ブラウザ拡張を横断し、機器切替・スリープ・終了競合をFake Relay自動テストで検証しました。',
+      webScreensTitle: '主要画面（ダッシュボード・会議STT検証・通知要約）',
+      webScreens: [
+        { publicSrc: '/projects/durumari/cover.png', alt: 'Durumariダッシュボード画面', caption: 'ダッシュボード（14種）' },
+        { assetFile: 'meeting-stt.png', alt: '会議STT実検証ページ', caption: '会議STT実検証画面' },
+        { assetFile: 'notifications.png', alt: '通知要約ポップオーバー', caption: '通知要約ウィンドウ' },
+      ],
       modulesTitle: '担当アーキテクチャモジュール（225コミット）',
       modules: [
         {

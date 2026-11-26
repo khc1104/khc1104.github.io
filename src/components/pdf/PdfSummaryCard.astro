@@ -28,6 +28,25 @@ const webProjectUrl = `${siteUrl}/${lang}/projects/${detail.slug}/`;
     <div class="flex shrink-0 items-center">
       <PdfMiniPhone src={cover.src} alt={cover.alt} size="xs" />
     </div>
+  ) : platform === 'web' && cover ? (
+    <div class="flex w-[124px] shrink-0 flex-col justify-center">
+      <div class="overflow-hidden rounded-lg border border-zinc-300 bg-white shadow-xs">
+        <div class="flex items-center gap-1 border-b border-zinc-200 bg-zinc-100 px-1.5 py-1" aria-hidden="true">
+          <span class="size-1.5 rounded-full bg-zinc-400"></span>
+          <span class="size-1.5 rounded-full bg-zinc-400"></span>
+          <span class="size-1.5 rounded-full bg-zinc-400"></span>
+        </div>
+        <div class="aspect-video overflow-hidden bg-zinc-50">
+          <img
+            src={cover.src}
+            alt={cover.alt}
+            loading="eager"
+            decoding="sync"
+            class="h-full w-full object-cover object-top"
+          />
+        </div>
+      </div>
+    </div>
   ) : (
     <div class="flex w-[86px] shrink-0 flex-col justify-between rounded-xl border border-line bg-zinc-900 p-2.5 text-white">
       <span class="text-[9px] font-semibold uppercase tracking-wider text-zinc-400">
