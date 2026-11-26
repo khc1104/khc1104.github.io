@@ -41,3 +41,6 @@
 5. `src/components/pdf/PdfSingleProjectSheet.astro` — 나머지 프로젝트를 단독 1페이지로 배치하며, 스크린샷이 있는 iOS 앱은 미니 목업을, 비공개 웹 프로젝트(`Veil`)는 아키텍처 모듈 카드를 표시합니다.
 6. `src/pages/[lang]/pdf.astro` — 프로젝트 선택(상세·요약·제외)·순서 변경·프리셋·URL 쿼리 동기화·인쇄 CSS를 묶는 Astro 동적 로케일 페이지입니다.
 7. `scripts/export-pdf.mjs` — 빌드된 `dist/`를 임시 로컬 서버로 띄우고 로컬 Chrome/Edge headless로 원하는 조합의 PDF를 바로 저장하는 CLI 스크립트입니다.
+
+## 추가 수정 — 웹 요약 카드 기본 썸네일 비율 보정
+- `PdfSummaryCard.astro`에서 대표 이미지가 없는 웹 프로젝트(`Veil`)가 세로로 좁은 막대(`w-[86px]`)로 보이던 문제를 수정해, 이미지가 있는 웹 프로젝트와 동일한 16:9 가로 브라우저 프레임(`w-[124px] aspect-video`)으로 통일했습니다.

@@ -28,7 +28,7 @@ const webProjectUrl = `${siteUrl}/${lang}/projects/${detail.slug}/`;
     <div class="flex shrink-0 items-center">
       <PdfMiniPhone src={cover.src} alt={cover.alt} size="xs" />
     </div>
-  ) : platform === 'web' && cover ? (
+  ) : platform === 'web' ? (
     <div class="flex w-[124px] shrink-0 flex-col justify-center">
       <div class="overflow-hidden rounded-lg border border-zinc-300 bg-white shadow-xs">
         <div class="flex items-center gap-1 border-b border-zinc-200 bg-zinc-100 px-1.5 py-1" aria-hidden="true">
@@ -37,26 +37,42 @@ const webProjectUrl = `${siteUrl}/${lang}/projects/${detail.slug}/`;
           <span class="size-1.5 rounded-full bg-zinc-400"></span>
         </div>
         <div class="aspect-video overflow-hidden bg-zinc-50">
-          <img
-            src={cover.src}
-            alt={cover.alt}
-            loading="eager"
-            decoding="sync"
-            class="h-full w-full object-cover object-top"
-          />
+          {cover ? (
+            <img
+              src={cover.src}
+              alt={cover.alt}
+              loading="eager"
+              decoding="sync"
+              class="h-full w-full object-cover object-top"
+            />
+          ) : (
+            <div class="flex h-full w-full flex-col justify-between bg-zinc-900 p-2 text-white">
+              <span class="text-[7.5px] font-semibold uppercase tracking-wider text-zinc-400">
+                {t(platformLabelKey(platform))}
+              </span>
+              <div>
+                <strong class="block text-[11px] font-bold leading-none tracking-tight">{title}</strong>
+                <span class="mt-0.5 block truncate text-[7.5px] text-zinc-300">
+                  {stack.slice(0, 3).join(' · ')}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
   ) : (
-    <div class="flex w-[86px] shrink-0 flex-col justify-between rounded-xl border border-line bg-zinc-900 p-2.5 text-white">
-      <span class="text-[9px] font-semibold uppercase tracking-wider text-zinc-400">
-        {t(platformLabelKey(platform))}
-      </span>
-      <div>
-        <strong class="block text-[12px] font-bold leading-tight">{title}</strong>
-        <span class="mt-1 block text-[8.5px] leading-snug text-zinc-300">
-          {stack.slice(0, 3).join(' · ')}
+    <div class="flex shrink-0 items-center">
+      <div class="flex aspect-[9/19.5] w-[86px] flex-col justify-between rounded-[14px] border border-line bg-zinc-900 p-2.5 text-white">
+        <span class="text-[8px] font-semibold uppercase tracking-wider text-zinc-400">
+          {t(platformLabelKey(platform))}
         </span>
+        <div>
+          <strong class="block text-[11px] font-bold leading-tight">{title}</strong>
+          <span class="mt-1 block text-[8px] leading-snug text-zinc-300">
+            {stack.slice(0, 3).join(' · ')}
+          </span>
+        </div>
       </div>
     </div>
   )}
