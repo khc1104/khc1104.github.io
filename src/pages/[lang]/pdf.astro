@@ -555,14 +555,18 @@ const clientConfig = {
           // 6. Update Profile Sheet dynamic index list
           if (profileIndexList) {
             const activeSlugs = [...detailSlugs, ...summarySlugs];
-            profileIndexList.classList.toggle('space-y-1.5', activeSlugs.length >= 6);
-            profileIndexList.classList.toggle('space-y-2', activeSlugs.length < 6);
+            const dense = activeSlugs.length >= 7;
+            profileIndexList.classList.toggle('space-y-1', dense);
+            profileIndexList.classList.toggle('space-y-1.5', !dense && activeSlugs.length >= 5);
+            profileIndexList.classList.toggle('space-y-2', activeSlugs.length < 5);
 
             for (const slug of allSlugs) {
               const item = indexItemsBySlug.get(slug);
               if (!item) continue;
               const isIncluded = activeSlugs.includes(slug);
               item.classList.toggle('hidden', !isIncluded);
+              item.classList.toggle('py-1', dense);
+              item.classList.toggle('py-1.5', !dense);
             }
 
             for (const slug of activeSlugs) {

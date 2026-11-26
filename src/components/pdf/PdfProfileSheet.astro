@@ -195,7 +195,7 @@ const githubDisplay = contact.github.replace(/^https?:\/\//, '');
           <span class="text-[10px] font-medium tabular-nums text-muted" data-index-count></span>
         </div>
 
-        <ol class="mt-2 space-y-1.5" data-profile-index-list>
+        <ol class="mt-2 space-y-1" data-profile-index-list>
           {projects.map((entry) => {
             const slug = projectSlug(entry.id);
             const detail = details[slug];

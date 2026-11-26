@@ -45,7 +45,7 @@ export const profiles: Record<Lang, Profile> = {
         title: '삼성 청년 SW 아카데미(SSAFY) 15기',
         role: '교육생',
         summary:
-          'Java·Spring으로 기본기를 다진 뒤 공통 프로젝트 Veil과 특화 프로젝트 Steam 운영 진단 플랫폼을 팀으로 개발하고 있습니다.',
+          'Java·Spring으로 기본기를 다진 뒤 공통 프로젝트 Veil과 자율 프로젝트 Durumari(AI 에이전트용 Cloud Context 플랫폼)를 팀으로 개발했습니다.',
       },
       {
         period: '2024.06 – 2024.11',
@@ -103,7 +103,7 @@ export const profiles: Record<Lang, Profile> = {
         title: 'サムスン青年SWアカデミー(SSAFY) 15期',
         role: '受講生',
         summary:
-          'Java・Springで基礎を固めた後、共通プロジェクトVeilと特化プロジェクトSteam運営診断プラットフォームをチームで開発しています。',
+          'Java・Springで基礎を固めた後、共通プロジェクトVeilと自律プロジェクトDurumari（AIエージェント向けCloud Contextプラットフォーム）をチームで開発しました。',
       },
       {
         period: '2024.06 – 2024.11',

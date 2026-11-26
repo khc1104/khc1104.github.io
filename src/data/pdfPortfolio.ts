@@ -221,17 +221,17 @@ export const pdfPresets: Record<Lang, PdfPreset[]> = {
     {
       id: 'ios',
       label: 'iOS 지원용',
-      description: '대표 iOS 2개 상세 + 나머지 4개 요약 (6p)',
+      description: '대표 iOS 2개 상세 + Durumari·iOS 3개 요약 (6p)',
       includeProfile: true,
       detail: ['insulin-note', 'kanji-mate'],
-      summary: ['lol-stat', 'pet-mate', 'timoney', 'list-up'],
+      summary: ['durumari', 'lol-stat', 'pet-mate', 'timoney'],
     },
     {
       id: 'ssafy',
       label: 'SSAFY 리뷰용',
-      description: '대표 iOS 2개 + Veil 상세 + 나머지 4개 요약 (7p)',
+      description: '대표 iOS 2개 + Durumari·Veil 상세 + 나머지 4개 요약 (8p)',
       includeProfile: true,
-      detail: ['insulin-note', 'kanji-mate', 'veil'],
+      detail: ['insulin-note', 'kanji-mate', 'durumari', 'veil'],
       summary: ['lol-stat', 'pet-mate', 'timoney', 'list-up'],
     },
     {
@@ -245,9 +245,18 @@ export const pdfPresets: Record<Lang, PdfPreset[]> = {
     {
       id: 'all',
       label: '전체 상세',
-      description: '프로필 + 모든 프로젝트 개별 페이지 (10p)',
+      description: '프로필 + 모든 프로젝트 개별 페이지 (11p)',
       includeProfile: true,
-      detail: ['insulin-note', 'kanji-mate', 'veil', 'lol-stat', 'pet-mate', 'timoney', 'list-up'],
+      detail: [
+        'insulin-note',
+        'kanji-mate',
+        'durumari',
+        'veil',
+        'lol-stat',
+        'pet-mate',
+        'timoney',
+        'list-up',
+      ],
       summary: [],
     },
   ],
@@ -255,17 +264,17 @@ export const pdfPresets: Record<Lang, PdfPreset[]> = {
     {
       id: 'ios',
       label: 'iOS応募用',
-      description: '代表iOS 2件詳細 + その他4件要約 (6p)',
+      description: '代表iOS 2件詳細 + Durumari・その他3件要約 (6p)',
       includeProfile: true,
       detail: ['insulin-note', 'kanji-mate'],
-      summary: ['lol-stat', 'pet-mate', 'timoney', 'list-up'],
+      summary: ['durumari', 'lol-stat', 'pet-mate', 'timoney'],
     },
     {
       id: 'ssafy',
       label: 'SSAFYレビュー用',
-      description: '代表iOS 2件 + Veil詳細 + その他4件要約 (7p)',
+      description: '代表iOS 2件 + Durumari・Veil詳細 + その他4件要約 (8p)',
       includeProfile: true,
-      detail: ['insulin-note', 'kanji-mate', 'veil'],
+      detail: ['insulin-note', 'kanji-mate', 'durumari', 'veil'],
       summary: ['lol-stat', 'pet-mate', 'timoney', 'list-up'],
     },
     {
@@ -279,9 +288,18 @@ export const pdfPresets: Record<Lang, PdfPreset[]> = {
     {
       id: 'all',
       label: '全件詳細',
-      description: 'プロフィール + 全プロジェクト個別ページ (10p)',
+      description: 'プロフィール + 全プロジェクト個別ページ (11p)',
       includeProfile: true,
-      detail: ['insulin-note', 'kanji-mate', 'veil', 'lol-stat', 'pet-mate', 'timoney', 'list-up'],
+      detail: [
+        'insulin-note',
+        'kanji-mate',
+        'durumari',
+        'veil',
+        'lol-stat',
+        'pet-mate',
+        'timoney',
+        'list-up',
+      ],
       summary: [],
     },
   ],
@@ -494,6 +512,51 @@ export const pdfProjectDetails: Record<Lang, Record<string, PdfProjectDetail>> =
       summaryHighlights: [
         '세로글 90° 회전·조각 병합·후리가나 제거로 교정 전 문맥 인식률 24%→50%(다른 페이지 88%) 달성',
         'Vision·Natural Language·Translation·ActivityKit 기반 온디바이스 학습 카드 및 회귀 검증 체계 구축',
+      ],
+    },
+
+    durumari: {
+      kind: 'single',
+      slug: 'durumari',
+      overviewTitle: '프로젝트 개요',
+      overviewBody:
+        '여러 AI 코딩 에이전트(Codex·Claude Code·Cursor·Gemini CLI)와 팀원이 프로젝트 문맥(Context)·스킬·비밀값·회의 기록을 함께 관리하는 Cloud Context 플랫폼입니다. SSAFY 15기 자율 팀 프로젝트로 origin/dev 기준 225건의 커밋을 기여했습니다.',
+      roleTitle: '담당 역할 및 핵심 구현',
+      roleBullets: [
+        '회의 STT 파이프라인 A측 전담(하위 이슈 49건): 세션 생명주기(생성·동의·일시정지·ENDING/EOS), 오디오 캡처·outbox 재시도, RTT 시각 오프셋 보정, 호스트 선출·PCM 릴레이 및 실검증 테스트 페이지 구현',
+        '오디오 WebSocket 보안·안정성 강화: create/start/end 멱등 락, CSRF·프로젝트 권한 검증, 타 구름·사칭 user_id 차단 테스트 구축',
+        '대시보드 위젯 14종을 Figma 크기별 시안으로 재설계하고 오른쪽 우선→아래 연쇄 밀림 드래그, 리사이즈 핸들 제어, data-fit 오버플로 숨김 구현',
+        '자동완성 브라우저 확장 3단계 온보딩(PIN 선입력·기기 승인·배지·Firefox 권한) 및 공용 알림 벨 팝오버·초안 이탈 가드 연동 구현',
+      ],
+      highlightLabel: '핵심 성과 & 협업 포인트',
+      highlightBody:
+        'React·TypeScript 프론트엔드, FastAPI·WebSocket 백엔드, 브라우저 확장을 넘나들며 실시간 오디오 스트림 경합(장치 교체·절전·종료)을 Fake Relay 자동 테스트로 검증했습니다.',
+      modulesTitle: '담당 아키텍처 모듈 (225 커밋)',
+      modules: [
+        {
+          title: '회의 STT 파이프라인 (A측)',
+          tag: 'WebSocket · FastAPI · React',
+          detail: '오디오 청크 outbox·재시도, RTT 시각 보정, 호스트 적합 판정·PCM 릴레이, 전사 목록·PATCH 정정 및 보안 검증(하위 49건)',
+        },
+        {
+          title: '대시보드 위젯 14종 · 배치 엔진',
+          tag: 'React · TypeScript · Figma',
+          detail: '14개 위젯 크기별 컴포넌트화, 오른쪽 우선→아래 연쇄 밀림 드래그, 리사이즈 제어 및 data-fit 오버플로 맞춤',
+        },
+        {
+          title: '자동완성 브라우저 확장 온보딩',
+          tag: 'Extension · Chrome · Firefox',
+          detail: '설치 직후 PIN 선입력·기기 승인 3단계 설정, 사이트/잠금 상태 아이콘 배지, 잠금 해제 후 입력칸 자동 복귀',
+        },
+        {
+          title: '공용 알림 팝오버 · 품질/CI',
+          tag: 'Vitest · Playwright · Actions',
+          detail: '요청 알림 벨 팝오버 요약·초안 이탈 가드 연동, Windows Git/UTF-8 훅 호환 수정 및 Heavy 러너 전환',
+        },
+      ],
+      summaryHighlights: [
+        '회의 STT 파이프라인 A측 전담(49개 이슈): 오디오 outbox·RTT 시각 보정·호스트 PCM 릴레이·보안 검증',
+        '대시보드 위젯 14종 개편·연쇄 밀림 드래그, 브라우저 확장 온보딩, 알림 벨 팝오버 구현 (225 커밋)',
       ],
     },
 
@@ -845,6 +908,51 @@ export const pdfProjectDetails: Record<Lang, Record<string, PdfProjectDetail>> =
       summaryHighlights: [
         '縦書き90°回転・断片統合・振り仮名除外で補正前文脈認識率24%→50%（別ページ88%）を達成',
         'Vision・Natural Language・Translation・ActivityKitによる端末内学習カードと回帰検証を構築',
+      ],
+    },
+
+    durumari: {
+      kind: 'single',
+      slug: 'durumari',
+      overviewTitle: 'プロジェクト概要',
+      overviewBody:
+        '複数のAIコーディングエージェント（Codex・Claude Code・Cursor等）とチームがプロジェクト文脈・スキル・シークレット・会議記録を共有管理するCloud Contextプラットフォームです。SSAFY 15期自律チームでorigin/dev基準225件をコミットしました。',
+      roleTitle: '担当役割と主な実装',
+      roleBullets: [
+        '会議STTパイプラインA側専任（49イシュー）：セッション管理・録音同意・音声outbox再送・RTT時刻補正・ホスト選出とPCMリレー・実検証ページを実装',
+        '音声WebSocketのセキュリティ・堅牢化：create/start/end冪等ロック、CSRF・権限検証、なりすましuser_id遮断テストを構築',
+        'ダッシュボードウィジェット14種をFigmaサイズ別に刷新し、右優先→下段連鎖押し出しドラッグ・リサイズ制御・data-fit自動省略を実装',
+        '自動入力ブラウザ拡張の3ステップオンボーディング（PIN先入力・端末承認・Firefox権限）および共通通知ベルポップオーバーを実装',
+      ],
+      highlightLabel: '成果・チーム開発ポイント',
+      highlightBody:
+        'React・FastAPI・WebSocket・ブラウザ拡張を横断し、機器切替・スリープ・終了競合をFake Relay自動テストで検証しました。',
+      modulesTitle: '担当アーキテクチャモジュール（225コミット）',
+      modules: [
+        {
+          title: '会議STTパイプライン（A側）',
+          tag: 'WebSocket・FastAPI・React',
+          detail: '音声チャンクoutbox再送、RTT時刻補正、ホスト適合判定・PCMリレー、文字起こし訂正とセキュリティ検証（49件）',
+        },
+        {
+          title: 'ダッシュボード14種・配置エンジン',
+          tag: 'React・TypeScript・Figma',
+          detail: '14ウィジェットのサイズ別刷新、右優先→下段連鎖押し出しドラッグ、リサイズ制御、data-fit溢れ制御',
+        },
+        {
+          title: '自動入力ブラウザ拡張オンボーディング',
+          tag: 'Extension・Chrome・Firefox',
+          detail: 'PIN先入力・端末承認の3ステップ導入、状態別アイコンバッジ、ロック解除後の入力欄自動復帰',
+        },
+        {
+          title: '共通通知ポップオーバー・品質/CI',
+          tag: 'Vitest・Playwright・Actions',
+          detail: '通知ベル要約・下書き離脱ガード連携、Windows Git/UTF-8互換修正、Heavyランナー移行',
+        },
+      ],
+      summaryHighlights: [
+        '会議STT A側専任（49イシュー）：音声outbox・RTT補正・ホストPCMリレー・セキュリティ検証',
+        'ダッシュボードウィジェット14種刷新・連鎖ドラッグ、拡張オンボーディング、共通通知を実装（225コミット）',
       ],
     },
 

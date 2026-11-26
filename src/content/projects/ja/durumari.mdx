@@ -1,0 +1,122 @@
+---
+title: Durumari
+platform: web
+summary: AIエージェントとチームがプロジェクト文脈を共有管理するCloud Contextプラットフォーム — 会議STTパイプライン・ダッシュボードウィジェット・拡張機能オンボーディング担当
+period: "2026.10.07 ~ 2026.11.25"
+startDate: 2026-10-07
+home: true
+role: SSAFY 15期 自律チーム・会議STT・ダッシュボードウィジェット・ブラウザ拡張
+stack:
+  - TypeScript
+  - React
+  - FastAPI
+  - Python
+  - WebSocket
+  - PostgreSQL
+  - Playwright
+links:
+  demo: https://durumari.kr
+---
+
+import ArchitectureFlow from '../../../components/mdx/ArchitectureFlow.astro';
+import Callout from '../../../components/mdx/Callout.astro';
+import CaseStudyNav from '../../../components/mdx/CaseStudyNav.astro';
+import MetricGrid from '../../../components/mdx/MetricGrid.astro';
+import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
+
+<MetricGrid
+  items={[
+    { value: '225件', label: 'origin/dev コミット', detail: '2026-10-14 ~ 11-12時点' },
+    { value: '49件', label: '会議STT A側イシュー', detail: 'Epic S15P31F103-304' },
+    { value: '14種', label: 'ウィジェット刷新', detail: 'Figmaサイズ別対応' },
+    { value: 'Web・API・Ext', label: '担当領域', detail: 'フロント・バック・拡張' },
+  ]}
+/>
+
+<CaseStudyNav
+  label="このページの内容"
+  items={[
+    { href: '#background', label: '背景と担当範囲' },
+    { href: '#stt-pipeline', label: '会議STTパイプライン（A側）' },
+    { href: '#widgets-extension', label: 'ダッシュボード・拡張・通知' },
+    { href: '#troubleshooting', label: '問題解決' },
+    { href: '#retrospective', label: '成果と振り返り' },
+  ]}
+/>
+
+<h2 id="background">背景と担当範囲</h2>
+
+Durumariは、複数のAIコーディングエージェント（Codex・Claude Code・Cursor・Gemini CLIなど）とチームメンバーが、同じプロジェクト文脈（Context）・共有スキル・シークレット・会議記録を安全に共有するためのCloud Contextプラットフォームです。SSAFY 15期の自律チームプロジェクトとして、Web・API・ブラウザ拡張・MCPランタイムを一体で開発しました。
+
+チームでは**会議STTパイプライン（A側専任）**を中心に、**ダッシュボードウィジェット14種の刷新とドラッグ／リサイズ制御**、**自動入力ブラウザ拡張のオンボーディング**、**共通通知ベルポップオーバー**まで、フロントエンド（React・TypeScript）・バックエンド（FastAPI・WebSocket）・ブラウザ拡張を横断して担当しました。
+
+<Callout label="担当サマリ">
+  会議STT Epic（`S15P31F103-304`）でセッション・音声キャプチャ・送信・時刻補正・ホストリレー・セキュリティ検証（A側49件）を専任し、ウィジェット14種刷新や拡張オンボーディング・通知機能を含め `origin/dev` 基準で225件のコミットを反映しました。
+</Callout>
+
+<h2 id="stt-pipeline">会議STTパイプライン（A側専任）</h2>
+
+会議音声を中央サーバーへ恒久保存せずチーム端末で安全に処理するため、参加者ブラウザのキャプチャ安定性・時刻同期・ホスト選出とリレープロトコルを一貫設計しました。
+
+<ArchitectureFlow
+  label="Web会議室の音声キャプチャからホストPCMリレー・文字起こし訂正まで"
+  steps={[
+    { title: 'セッション・同意', detail: '会議作成・待機・参加者一覧と録音同意の記録' },
+    { title: '時刻オフセット補正', detail: '最短RTTによるclock offset推定と不確実性管理' },
+    { title: '音声キャプチャ・Outbox', detail: 'チャンク分割・再送キュー・機器切替/スリープ復帰' },
+    { title: '音声WSS・セキュリティ', detail: 'CSRF・プロジェクト権限・冪等ロック・なりすまし防止' },
+    { title: 'ホスト選出・リレー', detail: '適合判定を確認し選出ホストブラウザへPCM転送' },
+    { title: '文字起こし・訂正', detail: '一覧取得・PATCH訂正連携と実検証テストページ' },
+  ]}
+/>
+
+- **セッションライフサイクル**: 会議作成・待機・ロスター表示・一時停止／再開・終了（`ENDING` → tail封止 → `EOS`）UIとFastAPIセッションAPIを構築
+- **送信信頼性**: 失敗チャンクの再試行（outbox）、送信失敗時の後続ブロック防止、終了pending数の厳密集計、実検証用テストページ（`#1014`）を実装
+- **時刻・ホスト制御**: 最短RTTからclock offsetを推定して不確実性範囲を超えた場合のみrevisionを更新し、適合判定のない端末はホスト選出申請を行わないよう制御
+
+<h2 id="widgets-extension">ダッシュボードウィジェット・ブラウザ拡張・通知</h2>
+
+### ダッシュボードウィジェット14種の刷新とドラッグ／リサイズ
+- Figmaデザインに合わせてウィジェットを種類別ファイルへ分割し、共通カード枠とパーツを再設計しました。
+- 最近の変更、決定リクエスト、ファイル、Context、固定ドキュメント、お気に入り、Agent接続状況、シークレット、共有スキル、メンバー、アーカイブ、用語集、ホワイトボード、ドキュメント関係グラフの**14ウィジェット**をサイズ別に実装しました。
+- ドラッグ時に押し出されたウィジェットが**右優先→空きがなければ下へ連鎖移動**する配置ロジック（`#898`, `#934`）、保存・設定中のリサイズハンドル制御（`#948`）、カード高さに応じて溢れた項目を自動で隠す `data-fit` 制御（`#877`）を実装しました。
+
+### ブラウザ拡張オンボーディング・共通通知
+- インストール直後にPIN先入力と端末承認を設定タブ内で完結する3ステップオンボーディング（`#158`~`#169`）、サイト有効・ロック状態に応じたアイコン／バッジ切替、ロック解除後の入力欄復帰、Firefoxローカルビルド権限パターンを実装しました。
+- リクエスト通知を一覧要約し詳細へ遷移する**共通ベルポップオーバー（`#944`）**を実装し、下書き離脱ガードと既存招待バッジ数を維持するよう連携しました。
+
+<h2 id="troubleshooting">問題解決</h2>
+
+<Troubleshooting
+  title="マイク切替・スリープ・終了が重なった際のストリームおよびEOS境界ズレ"
+  problem="会議中に入力機器の切替や画面ロック・スリープ・終了が重なると、失敗チャンクより先のseqでEOSが閉じたり、旧ストリームのリスナーが残って録音が乱れる問題がありました。"
+  cause="機器切替と終了封止（ENDING）の間に競合があり、キュー未投入または失敗チャンクまでEOS境界計算に混在していました。"
+  solution="機器切替・マイク切断・スリープ復帰時に既存ストリームをEOSで明示終了し新ストリームをseq 0から開始する設計へ分離しました。EOS境界は実際にキュー投入されたチャンク基準に固定し、終了封止中の競合を遮断しました。"
+  result="4回のコードレビューとVitestベースのFake Relay自動テストを通過し、中断・復帰・終了シナリオ全体で整合したストリーム遷移を保証しました。"
+  labels={{ problem: '問題', cause: '原因', solution: '解決', result: '結果' }}
+  open
+/>
+
+<Troubleshooting
+  title="会議API・音声WebSocketの権限バイパスと重複コマンド防止"
+  problem="会議のcreate/start/endコマンド重複実行や、他クラウドのユーザー・なりすましuser_idによる音声WSSおよび制御APIアクセス可能性が指摘されました。"
+  cause="状態遷移APIと音声ソケットのハンドシェイクで冪等キーロック・クラウド所属・ホスト一致検証が不足していました。"
+  solution="create/start/endへ冪等キーとロックを導入し、ワークスペースUUID正規比較、CSRF検証、他ユーザー／他クラウド音声WSS拒否、非主催者の選出ホスト専用ソケット検証を実装しました。"
+  result="なりすまし・権限境界テスト（`#369`, `#741`, `#342`）を追加し、本番経路のセキュリティ要件を担保しました。"
+  labels={{ problem: '問題', cause: '原因', solution: '解決', result: '結果' }}
+/>
+
+<Troubleshooting
+  title="ダッシュボードウィジェットの連鎖押し出し不整合とカード溢れ"
+  problem="ドラッグ配置時にウィジェットが隣を飛び越えたり同位置ドロップで崩れる現象と、14種ウィジェットのデータ増加によるカード外溢れが発生していました。"
+  cause="単一移動のみを想定した押し出し計算で連鎖衝突を扱えておらず、表示件数も固定値でカード高さと合致していませんでした。"
+  solution="右優先配置と下段への連鎖押し出しアルゴリズムへ刷新し、`data-fit` による動的オーバーフロー非表示と実レンダー対照チェックを導入しました。"
+  result="14種すべてのウィジェットがFigmaサイズ仕様通りに描画され、保存・設定中のリサイズ競合も解消しました。"
+  labels={{ problem: '問題', cause: '原因', solution: '解決', result: '結果' }}
+/>
+
+<h2 id="retrospective">成果と振り返り</h2>
+
+iOS中心だった経験から、大規模モノレポ（React・FastAPI・ブラウザ拡張・MCP）におけるリアルタイム音声プロトコル・状態管理・セキュリティ検証までを一貫して担当し、フルスタック開発とチーム統合の視野を広げました。
+
+特に会議STTでは、**シーケンス・EOS・冪等性・権限といったプロトコル契約を自動テストで先に固定し小さなPRで検証する進め方**が、複数メンバーとの並列統合における回帰防止に有効であることを実感しました。

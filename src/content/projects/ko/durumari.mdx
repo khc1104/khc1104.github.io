@@ -1,0 +1,119 @@
+---
+title: Durumari
+platform: web
+summary: AI 에이전트와 팀이 프로젝트 문맥을 함께 관리하는 Cloud Context 플랫폼 — 회의 STT 파이프라인·대시보드 위젯·브라우저 확장 담당
+period: "2026.10.07 ~ 2026.11.25"
+startDate: 2026-10-07
+home: true
+role: SSAFY 15기 자율 팀 · 회의 STT·대시보드 위젯·브라우저 확장
+stack:
+  - TypeScript
+  - React
+  - FastAPI
+  - Python
+  - WebSocket
+  - PostgreSQL
+  - Playwright
+links:
+  demo: https://durumari.kr
+---
+
+import ArchitectureFlow from '../../../components/mdx/ArchitectureFlow.astro';
+import Callout from '../../../components/mdx/Callout.astro';
+import CaseStudyNav from '../../../components/mdx/CaseStudyNav.astro';
+import MetricGrid from '../../../components/mdx/MetricGrid.astro';
+import Troubleshooting from '../../../components/mdx/Troubleshooting.astro';
+
+<MetricGrid
+  items={[
+    { value: '225건', label: 'origin/dev 커밋', detail: '2026-10-14 ~ 11-12 기준' },
+    { value: '49건', label: '회의 STT A측 이슈', detail: 'Epic S15P31F103-304' },
+    { value: '14종', label: '대시보드 위젯 개편', detail: 'Figma 크기별 대응' },
+    { value: 'Web · API · Ext', label: '담당 범위', detail: '프론트·백엔드·확장' },
+  ]}
+/>
+
+<CaseStudyNav
+  label="이 페이지에서"
+  items={[
+    { href: '#background', label: '배경과 담당 범위' },
+    { href: '#stt-pipeline', label: '회의 STT 파이프라인 (A측)' },
+    { href: '#widgets-extension', label: '대시보드 위젯 · 확장 · 알림' },
+    { href: '#troubleshooting', label: '문제 해결 경험' },
+    { href: '#retrospective', label: '성과와 회고' },
+  ]}
+/>
+
+<h2 id="background">배경과 담당 범위</h2>
+
+Durumari는 여러 AI 코딩 에이전트(Codex, Claude Code, Cursor, Gemini CLI 등)와 팀원이 같은 프로젝트 문맥(Context)·공용 스킬·비밀값·회의 기록을 안전하게 공유하도록 만든 Cloud Context 플랫폼입니다. SSAFY 15기 자율 팀 프로젝트로 웹·API·브라우저 확장·MCP 런타임을 함께 개발했습니다.
+
+저는 팀에서 **회의 STT 파이프라인(A측 전담)**을 중심으로 **대시보드 위젯 14종 개편 및 드래그·리사이즈**, **자동완성 브라우저 확장 온보딩**, **공용 알림 벨 팝오버**까지 프론트엔드(`React`·`TypeScript`)와 백엔드(`FastAPI`·`WebSocket`), 브라우저 확장을 넘나들며 구현했습니다.
+
+<Callout label="역할 요약">
+  회의 STT Epic(`S15P31F103-304`)에서 세션·오디오 캡처·전송·시각 정렬·호스트 릴레이·보안 검증(A측 49개 하위 이슈)을 전담했고, 대시보드 14종 위젯 리뉴얼과 브라우저 확장 초기 온보딩·알림 요약 창을 맡아 `origin/dev` 기준 225건의 커밋을 반영했습니다.
+</Callout>
+
+<h2 id="stt-pipeline">회의 STT 파이프라인 (A측 전담)</h2>
+
+실시간 회의 음성을 중앙 서버에 영구 저장하지 않고 팀 기기에서 안전하게 처리하려면, 참여자 브라우저의 캡처 안정성과 시각 정렬, 호스트 선출 및 릴레이 프로토콜이 정교하게 맞물려야 했습니다.
+
+<ArchitectureFlow
+  label="웹 회의실 오디오 캡처부터 호스트 PCM 릴레이·전사 정정까지"
+  steps={[
+    { title: '세션 · 동의', detail: '회의 생성·대기·참여자 현황 및 녹음 동의 기록' },
+    { title: '시각 오프셋 보정', detail: '최단 RTT 기반 clock offset 추정 및 불확실성 관리' },
+    { title: '오디오 캡처 · Outbox', detail: '청크 분할·재시도 큐·마이크 교체/절전 복구' },
+    { title: '오디오 WSS · 보안', detail: 'CSRF·프로젝트 권한·멱등 락·사칭 user_id 차단' },
+    { title: '호스트 선출 · 릴레이', detail: '적합 판정 확인 후 선출 호스트 브라우저로 PCM 전달' },
+    { title: '전사 목록 · 정정', detail: '전사 결과 조회·PATCH 정정 및 실검증 테스트 페이지' },
+  ]}
+/>
+
+- **세션 생명주기**: 회의 생성·참여 대기·로스터 현황·일시정지/재개·종료(`ENDING` → tail 봉인 → `EOS`) UI와 FastAPI 세션 API 구축
+- **오디오 송신 신뢰성**: 실패 청크 재시도(outbox), 전송 실패 시 후속 청크 블로킹 방지, 종료 pending 카운트 정밀 계산, 실검증용 테스트 페이지(`#1014`) 구현
+- **시각·호스트 제어**: 최단 RTT로 참여자 간 clock offset을 추정해 불확실성 범위를 벗어날 때만 revision을 갱신하고, 호스트 적합 판정이 없는 기기는 선출 신청을 막도록 설계
+
+<h2 id="widgets-extension">대시보드 위젯 · 브라우저 확장 · 알림</h2>
+
+### 대시보드 위젯 14종 개편 및 드래그·리사이즈
+- Figma 시안에 맞춰 위젯을 종류별 파일로 분리하고 공통 카드 틀·부품을 재설계했습니다.
+- 최근 변경, 처리할 결정 요청, 파일, Context, 고정 문서, 즐겨찾기, Agent 연결 현황, 비밀값 보관함, 공용 스킬, 구성원, 보관 문서, 용어사전, 화이트보드, 문서 관계 그래프 등 **14개 위젯**을 크기별로 구현했습니다.
+- 드래그 시 밀린 위젯이 **오른쪽 우선 → 자리가 없으면 아래로 연쇄 이동**하는 배치 로직(`#898`, `#934`), 저장·설정 중 리사이즈 핸들 제어(`#948`), 카드 높이에 맞춰 넘치는 항목을 뒤에서부터 숨기는 `data-fit` 유틸(`#877`)을 구현했습니다.
+
+### 브라우저 확장(자동완성) 온보딩 · 공용 알림
+- 확장 설치 직후 PIN 선입력과 기기 승인을 설정 탭에서 한 번에 끝내는 3단계 온보딩(`#158`~`#169`), 사이트 활성화·잠금 상태별 확장 아이콘·배지, 잠금 해제 후 입력칸 자동 복귀 및 Firefox 로컬 빌드 권한 패턴을 구현했습니다.
+- 여러 요청 알림을 한곳에 요약하고 상세 화면으로 이동하는 **공용 벨 팝오버(`#944`)**를 구현하고, 초안 편집 중 이탈 가드와 기존 초대 배지 카운트를 보존하도록 연동했습니다.
+
+<h2 id="troubleshooting">문제 해결 경험</h2>
+
+<Troubleshooting
+  title="마이크 교체·절전·종료가 겹칠 때 오디오 스트림과 EOS 경계가 어긋나던 문제"
+  problem="회의 중 입력 장치를 바꾸거나 화면 잠금·절전·탭 전환·종료가 동시에 일어나면, 실패한 청크보다 앞선 시퀀스로 EOS가 닫히거나 이전 스트림의 리스너가 남아 녹음이 꼬였습니다."
+  cause="장치 교체와 회의 종료 봉인(ENDING) 사이에 경합이 있었고, 아직 큐에 들어가지 못했거나 전송에 실패한 청크까지 EOS 경계 계산에 섞여 있었습니다."
+  solution="장치 교체·마이크 분리·절전 복귀 시 기존 스트림을 EOS로 명확히 닫고 새 스트림을 seq 0부터 열도록 분리했습니다. EOS 경계는 실제로 큐에 적재된 청크 기준으로 고정하고, 종료 봉인 중 장치 교체 경합을 차단했습니다."
+  result="4차례의 코드 리뷰와 Vitest 기반 Fake Relay 자동 테스트를 통과하며 중단·복귀·종료 시나리오에서 일관된 스트림 상태를 보장했습니다."
+  open
+/>
+
+<Troubleshooting
+  title="회의 API·오디오 WebSocket의 권한 우회 및 중복 명령 위험"
+  problem="동일한 회의 생성·시작·종료 명령이 중복 요청되거나, 다른 구름 사용자·사칭된 user_id가 오디오 WebSocket과 회의 제어 API에 접근할 수 있는 엣지 케이스가 확인됐습니다."
+  cause="세션 상태 전이(create/start/end)와 오디오 소켓 핸드셰이크에서 멱등 키 락과 구름·프로젝트 멤버십, 방장/선출 호스트 일치 검증이 느슨했습니다."
+  solution="create/start/end 명령에 멱등 키와 락을 적용하고, 워크스페이스 UUID 정규 비교, CSRF 검사, 타 사용자·타 구름 오디오 WSS 거부, 비방장 선출 기기 전용 호스트 소켓 검증을 추가했습니다."
+  result="권한 우회·사칭 차단 통합 테스트(`#369`, `#741`, `#342`)를 추가해 운영 경로의 보안 경계를 고정했습니다."
+/>
+
+<Troubleshooting
+  title="대시보드 위젯 드래그 시 밀림 불일치와 카드 오버플로 깨짐"
+  problem="위젯을 끌어다 놓을 때 밀린 카드가 옆 위젯을 건너뛰거나 같은 칸에 놓았을 때 어긋나고, 다양한 크기의 위젯 14종에서 데이터 개수가 많으면 카드 바깥으로 넘쳤습니다."
+  cause="밀림 계산이 단일 이동만 가정해 연쇄 충돌을 반영하지 못했고, 위젯별 행 수 제한이 하드코딩되어 실제 카드 높이와 어긋났습니다."
+  solution="오른쪽 우선 배치 후 공간 부족 시 아래 행까지 연쇄 밀림을 전파하는 알고리즘으로 교체하고, `data-fit` 속성 기반 동적 숨김 로직과 실제 렌더 대조 검수를 적용했습니다."
+  result="14종 위젯이 크기별 Figma 시안과 일치하게 렌더링되며, 저장·설정 중 불필요한 리사이즈 충돌도 차단했습니다."
+/>
+
+<h2 id="retrospective">성과와 회고</h2>
+
+iOS 중심으로 작업해 오던 상태에서, 대규모 모노레포(React·FastAPI·브라우저 확장·MCP)의 실시간 오디오 프로토콜과 복잡한 상태 관리·보안 테스트를 끝까지 책임지며 풀스택 협업 역량을 크게 넓혔습니다.
+
+특히 회의 STT 작업에서 **프로토콜 계약(시퀀스·EOS·멱등성·권한)을 테스트 코드로 먼저 고정하고 작은 PR 단위로 검증하는 습관**이, 여러 팀원과 병렬로 통합할 때 회귀를 막는 가장 확실한 방법임을 체감했습니다.

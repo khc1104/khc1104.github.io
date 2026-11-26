@@ -55,6 +55,11 @@ const webProjectUrl = `${siteUrl}/${lang}/projects/${detail.slug}/`;
               {t('githubLabel')} ↗
             </a>
           )}
+          {links?.demo && (
+            <a href={links.demo} class="underline underline-offset-2">
+              {t('demoLabel')} ↗
+            </a>
+          )}
           <a href={webProjectUrl} class="underline underline-offset-2">
             {copy.webDetailLink}
           </a>
