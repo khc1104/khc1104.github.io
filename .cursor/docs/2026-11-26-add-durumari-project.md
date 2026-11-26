@@ -31,6 +31,9 @@
 - `public/projects/durumari/cover.png`(16:9 대시보드 대표 컷)와 `src/assets/projects/durumari/{dashboard-view,meeting-stt,notifications}.png`를 한·일 `durumari.mdx`(`BrowserMockup` + `Figure` 3장)와 A4 가로 PDF 빌더(`PdfSingleProjectSheet` 웹 화면 3종 브라우저 프레임 + `PdfSummaryCard` 웹 썸네일)에 반영했습니다.
 - `npm run build` (`26 page(s) built`) 및 `portfolio-ssafy.pdf`(8p)·`portfolio.pdf`(6p) 시각 검증을 완료했습니다.
 
+## 추가 수정 — Durumari 라이브 서비스 링크 표기
+- 실제 서비스 운영 중인 `https://durumari.kr`이 `데모`로 표시되던 문제를 수정하기 위해 `links.website` 스키마와 한·일 라벨(`서비스` / `サービス`)을 추가하고 Durumari 웹·PDF·인쇄 페이지에 적용했습니다.
+
 ## 읽는 순서
 1. `src/content/projects/ko/durumari.mdx` — Durumari 한국어 상세 페이지로, 지표·회의 STT 아키텍처 흐름·트러블슈팅 3건을 MDX 컴포넌트로 구성합니다.
 2. `src/content/projects/ja/durumari.mdx` — 동일한 정보 구조의 일본어 상세 페이지입니다.

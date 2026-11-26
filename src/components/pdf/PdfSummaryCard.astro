@@ -74,6 +74,11 @@ const webProjectUrl = `${siteUrl}/${lang}/projects/${detail.slug}/`;
               {t('githubLabel')} ↗
             </a>
           )}
+          {links?.website && (
+            <a href={links.website} class="underline underline-offset-2">
+              {t('websiteLabel')} ↗
+            </a>
+          )}
           {links?.demo && (
             <a href={links.demo} class="underline underline-offset-2">
               {t('demoLabel')} ↗
