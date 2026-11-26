@@ -1,0 +1,86 @@
+---
+import PdfMiniPhone from './PdfMiniPhone.astro';
+import { pdfUiCopy, type PdfProjectDetail } from '../../data/pdfPortfolio';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+import { firstScreenshot, platformLabelKey, type ProjectEntry } from '../../lib/projects';
+
+interface Props {
+  lang: Lang;
+  entry: ProjectEntry;
+  detail: PdfProjectDetail;
+  siteUrl: string;
+}
+
+const { lang, entry, detail, siteUrl } = Astro.props;
+const t = useTranslations(lang);
+const copy = pdfUiCopy[lang];
+const { title, summary, period, role, stack, links, platform } = entry.data;
+const cover = firstScreenshot(entry);
+const webProjectUrl = `${siteUrl}/${lang}/projects/${detail.slug}/`;
+---
+
+<article
+  class="flex h-full gap-3.5 rounded-xl border border-line bg-white p-3.5"
+  data-summary-card={detail.slug}
+>
+  {platform !== 'web' && cover ? (
+    <div class="flex shrink-0 items-center">
+      <PdfMiniPhone src={cover.src} alt={cover.alt} size="xs" />
+    </div>
+  ) : (
+    <div class="flex w-[86px] shrink-0 flex-col justify-between rounded-xl border border-line bg-zinc-900 p-2.5 text-white">
+      <span class="text-[9px] font-semibold uppercase tracking-wider text-zinc-400">
+        {t(platformLabelKey(platform))}
+      </span>
+      <div>
+        <strong class="block text-[12px] font-bold leading-tight">{title}</strong>
+        <span class="mt-1 block text-[8.5px] leading-snug text-zinc-300">
+          {stack.slice(0, 3).join(' · ')}
+        </span>
+      </div>
+    </div>
+  )}
+
+  <div class="flex min-w-0 flex-1 flex-col justify-between">
+    <div>
+      <div class="flex items-center justify-between gap-2 text-[9.5px] text-muted">
+        <span class="truncate">
+          <strong class="font-semibold text-ink">{t(platformLabelKey(platform))}</strong>
+          {period && ` · ${period}`}
+        </span>
+        <div class="flex shrink-0 items-center gap-2 font-medium text-ink">
+          {links?.github && (
+            <a href={links.github} class="underline underline-offset-2">
+              {t('githubLabel')} ↗
+            </a>
+          )}
+          <a href={webProjectUrl} class="underline underline-offset-2">
+            {copy.webDetailLink}
+          </a>
+        </div>
+      </div>
+
+      <h3 class="mt-1 text-[14px] font-bold leading-snug tracking-tight text-ink">{title}</h3>
+      {role && <p class="text-[9.5px] font-medium text-muted">{role}</p>}
+      <p class="mt-1 text-[10px] leading-[1.45] text-muted">{summary}</p>
+
+      <ul class="mt-2 space-y-1 text-[10px] leading-[1.45] text-ink/90">
+        {detail.summaryHighlights.map((line) => (
+          <li class="flex items-start gap-1.5">
+            <span class="mt-1.5 size-1 shrink-0 rounded-full bg-zinc-900" aria-hidden="true" />
+            <span>{line}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="mt-2 flex flex-wrap gap-1 pt-1">
+      {stack.map((tech) => (
+        <span class="rounded border border-line bg-zinc-50 px-1.5 py-0.5 text-[9px] font-medium text-muted">
+          {tech}
+        </span>
+      ))}
+    </div>
+  </div>
+</article>

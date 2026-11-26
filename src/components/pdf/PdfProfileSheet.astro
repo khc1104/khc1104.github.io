@@ -1,0 +1,258 @@
+---
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+import PdfSheet from './PdfSheet.astro';
+import { profiles } from '../../data/profile';
+import { contact } from '../../data/contact';
+import { pdfProjectDetails, pdfUiCopy } from '../../data/pdfPortfolio';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+import { platformLabelKey, projectSlug, type ProjectEntry } from '../../lib/projects';
+
+interface Props {
+  lang: Lang;
+  projects: ProjectEntry[];
+  siteUrl: string;
+}
+
+const { lang, projects, siteUrl } = Astro.props;
+const t = useTranslations(lang);
+const copy = pdfUiCopy[lang];
+const profile = profiles[lang];
+const details = pdfProjectDetails[lang];
+
+const photos = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/profile.{jpg,jpeg,png,webp}',
+  { eager: true },
+);
+const rawPhoto = Object.values(photos)[0]?.default;
+const profilePhoto = rawPhoto ? await getImage({ src: rawPhoto, width: 320 }) : undefined;
+
+const cleanHost = siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
+const githubDisplay = contact.github.replace(/^https?:\/\//, '');
+---
+
+<PdfSheet lang={lang} kind="profile" siteUrl={siteUrl}>
+  <!-- Top Profile Header -->
+  <header class="flex items-start justify-between gap-6 border-b border-line pb-3.5">
+    <div class="min-w-0 flex-1 space-y-2">
+      <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <h1 class="text-[26px] font-bold leading-none tracking-tight text-ink">
+          {t('siteName')}
+        </h1>
+        <span class="text-[14px] font-semibold text-muted">{t('heroTitle')}</span>
+      </div>
+      <div class="space-y-1 text-[11.5px] leading-[1.55] text-muted">
+        {profile.intro.map((line) => <p>{line}</p>)}
+      </div>
+      <ul class="flex flex-wrap items-center gap-2 pt-0.5 text-[10.5px]">
+        <li>
+          <a
+            href={`${siteUrl}/${lang}/`}
+            class="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-zinc-50 px-2.5 py-0.5 font-medium text-ink"
+          >
+            <span class="text-muted">Web</span>
+            <span>{cleanHost}/{lang}/</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href={contact.github}
+            class="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-zinc-50 px-2.5 py-0.5 font-medium text-ink"
+          >
+            <span class="text-muted">GitHub</span>
+            <span>{githubDisplay}</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href={`mailto:${contact.email}`}
+            class="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-zinc-50 px-2.5 py-0.5 font-medium text-ink"
+          >
+            <span class="text-muted">Email</span>
+            <span>{contact.email}</span>
+          </a>
+        </li>
+        <li>
+          <a
+            href={contact.store}
+            class="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-zinc-50 px-2.5 py-0.5 font-medium text-ink"
+          >
+            <span class="text-muted">App Store</span>
+            <span>{t('contactStore')}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    {profilePhoto && (
+      <div class="relative aspect-[3/4] w-[96px] shrink-0 overflow-hidden rounded-xl border border-line bg-zinc-100">
+        <img
+          src={profilePhoto.src}
+          alt={t('profilePhotoAlt')}
+          loading="eager"
+          decoding="sync"
+          class="absolute inset-0 h-full w-full object-cover object-[50%_70%]"
+        />
+      </div>
+    )}
+  </header>
+
+  <!-- Main 2-column Bento -->
+  <div class="mt-3.5 grid min-h-0 flex-1 grid-cols-[1.15fr_0.95fr] gap-5">
+    <!-- Left: Skills + Experience + Education & Certifications -->
+    <div class="flex min-h-0 flex-col justify-between gap-3">
+      <!-- Skills -->
+      <section class="rounded-xl border border-line bg-zinc-50/70 p-3">
+        <h2 class="text-[11px] font-bold uppercase tracking-wider text-ink">
+          {t('stackTitle')}
+        </h2>
+        <dl class="mt-2 space-y-1.5">
+          {profile.skills.map((group) => (
+            <div class="grid grid-cols-[88px_minmax(0,1fr)] items-baseline gap-2">
+              <dt class="text-[10px] font-semibold text-muted">{group.label}</dt>
+              <dd class="flex flex-wrap gap-1">
+                {group.items.map((item) => (
+                  <span
+                    class:list={[
+                      'rounded-md border px-1.5 py-0.5 text-[10px] leading-tight',
+                      group.secondary
+                        ? 'border-zinc-200 bg-zinc-100/80 text-muted'
+                        : 'border-zinc-200 bg-white font-medium text-ink',
+                    ]}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <!-- Experience -->
+      <section class="min-h-0 flex-1">
+        <h2 class="text-[11px] font-bold uppercase tracking-wider text-ink">
+          {t('experienceTitle')}
+        </h2>
+        <ol class="mt-1.5 space-y-1.5">
+          {profile.experience.map((item) => (
+            <li class="grid grid-cols-[96px_minmax(0,1fr)] gap-2 text-[10px] leading-[1.4]">
+              <span class="font-medium tabular-nums text-muted">{item.period}</span>
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-baseline gap-x-1.5">
+                  <strong class="font-semibold text-ink">{item.title}</strong>
+                  {item.role && <span class="text-[9.5px] text-muted">{item.role}</span>}
+                </div>
+                {item.summary && <p class="mt-0.5 text-[9.5px] text-muted">{item.summary}</p>}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <!-- Education & Certifications -->
+      <div class="grid grid-cols-2 gap-3 border-t border-line pt-2.5">
+        <section>
+          <h2 class="text-[10.5px] font-bold uppercase tracking-wider text-ink">
+            {t('educationTitle')}
+          </h2>
+          <ul class="mt-1 space-y-1 text-[10px]">
+            {profile.education.map((item) => (
+              <li class="flex flex-col">
+                <span class="font-semibold text-ink">
+                  {item.title} <span class="font-normal text-muted">{item.role}</span>
+                </span>
+                <span class="tabular-nums text-[9.5px] text-muted">{item.period}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-[10.5px] font-bold uppercase tracking-wider text-ink">
+            {t('certificationsTitle')}
+          </h2>
+          <ul class="mt-1 space-y-1 text-[10px]">
+            {profile.certifications.map((item) => (
+              <li class="flex items-baseline justify-between gap-2">
+                <span class="font-medium text-ink">{item.title}</span>
+                <span class="shrink-0 tabular-nums text-[9.5px] text-muted">{item.period}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <!-- Right: Dynamic Selected Projects Index -->
+    <section class="flex min-h-0 flex-col justify-between overflow-hidden rounded-xl border border-line bg-zinc-50/70 p-3.5">
+      <div class="min-h-0 flex-1 overflow-hidden">
+        <div class="flex items-baseline justify-between gap-2 border-b border-line pb-1.5">
+          <h2 class="text-[12px] font-bold tracking-tight text-ink">
+            {copy.profileIndexTitle}
+          </h2>
+          <span class="text-[10px] font-medium tabular-nums text-muted" data-index-count></span>
+        </div>
+
+        <ol class="mt-2 space-y-1.5" data-profile-index-list>
+          {projects.map((entry) => {
+            const slug = projectSlug(entry.id);
+            const detail = details[slug];
+            const isSpread = detail?.kind === 'spread';
+            return (
+              <li
+                class="rounded-lg border border-line bg-white px-2.5 py-1.5"
+                data-index-item={slug}
+              >
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex min-w-0 items-center gap-1.5">
+                    <strong class="truncate text-[11px] font-semibold text-ink">
+                      {entry.data.title}
+                    </strong>
+                    <span class="shrink-0 rounded bg-zinc-100 px-1.5 py-0.5 text-[8.5px] font-medium text-muted">
+                      {t(platformLabelKey(entry.data.platform))}
+                    </span>
+                    <span
+                      class="shrink-0 rounded border border-zinc-200 px-1.5 py-0.5 text-[8.5px] font-medium text-muted"
+                      data-index-mode-badge
+                      data-detail-label={isSpread ? `${copy.modeDetail} · ${copy.detailPagesTag2}` : `${copy.modeDetail} · ${copy.detailPagesTag1}`}
+                      data-summary-label={copy.modeSummary}
+                    >
+                      {copy.modeDetail}
+                    </span>
+                  </div>
+                  <div class="flex shrink-0 items-baseline gap-2">
+                    {entry.data.period && (
+                      <span class="tabular-nums text-[9px] text-muted">{entry.data.period}</span>
+                    )}
+                    <span
+                      class="text-[10px] font-semibold tabular-nums text-ink"
+                      data-index-page-ref
+                    >
+                      p.02
+                    </span>
+                  </div>
+                </div>
+                <p class="mt-0.5 truncate text-[9.5px] leading-[1.35] text-muted">
+                  {entry.data.summary}
+                </p>
+              </li>
+            );
+          })}
+        </ol>
+
+        <p
+          class="mt-4 hidden text-center text-[11px] text-muted"
+          data-profile-empty-index
+        >
+          {copy.profileEmptyIndex}
+        </p>
+      </div>
+
+      <p class="mt-2 shrink-0 border-t border-line pt-2 text-[9.5px] leading-[1.4] text-muted">
+        {copy.profileIndexHint}
+      </p>
+    </section>
+  </div>
+</PdfSheet>

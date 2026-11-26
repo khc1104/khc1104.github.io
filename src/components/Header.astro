@@ -12,6 +12,7 @@ const t = useTranslations(lang);
 const next = otherLang(lang);
 const homeHref = getRelativeLocaleUrl(lang, '/');
 const projectsHref = getRelativeLocaleUrl(lang, '/projects/');
+const pdfHref = getRelativeLocaleUrl(lang, '/pdf/');
 const switchHref = getRelativeLocaleUrl(next, pathWithoutLocale(Astro.url.pathname, lang));
 ---
 
@@ -21,6 +22,7 @@ const switchHref = getRelativeLocaleUrl(next, pathWithoutLocale(Astro.url.pathna
     <nav class="flex shrink-0 items-center gap-4 text-sm whitespace-nowrap">
       <a class="text-muted hover:text-ink" href={homeHref}>{t('navHome')}</a>
       <a class="text-muted hover:text-ink" href={projectsHref}>{t('navProjects')}</a>
+      <a class="text-muted hover:text-ink" href={pdfHref}>{t('navPdf')}</a>
       <a
         class="rounded-full border border-zinc-300 px-3 py-1 text-zinc-700 hover:border-zinc-500"
         href={switchHref}

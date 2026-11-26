@@ -1,0 +1,464 @@
+---
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+import PdfSheet from './PdfSheet.astro';
+import PdfMiniPhone from './PdfMiniPhone.astro';
+import { pdfUiCopy, type PdfSpreadData } from '../../data/pdfPortfolio';
+import type { Lang } from '../../i18n/ui';
+import { useTranslations } from '../../i18n/utils';
+import { platformLabelKey, type ProjectEntry } from '../../lib/projects';
+
+interface Props {
+  lang: Lang;
+  entry: ProjectEntry;
+  data: PdfSpreadData;
+  siteUrl: string;
+}
+
+const { lang, entry, data, siteUrl } = Astro.props;
+const t = useTranslations(lang);
+const copy = pdfUiCopy[lang];
+const { title, summary, period, role, stack, links, platform } = entry.data;
+const webProjectUrl = `${siteUrl}/${lang}/projects/${data.slug}/`;
+
+const allAssets = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/projects/*/*.{png,jpg,jpeg,webp}',
+  { eager: true },
+);
+
+async function resolveAsset(file?: string, width = 640): Promise<string | undefined> {
+  if (!file) return undefined;
+  const found = Object.entries(allAssets).find(([path]) =>
+    path.endsWith(`/projects/${data.slug}/${file}`),
+  );
+  if (!found) return undefined;
+  const img = await getImage({ src: found[1].default, width });
+  return img.src;
+}
+
+const resolvedScreens = await Promise.all(
+  data.screens.map(async (item) => ({
+    src: item.publicSrc ?? (await resolveAsset(item.assetFile, 440)) ?? '',
+    alt: item.alt,
+    caption: item.caption,
+  })),
+);
+
+const diagramSrc = await resolveAsset(data.diagramAssetFile, 760);
+const screenFlowSrc = await resolveAsset(data.screenFlowAssetFile, 900);
+
+const verticalStitchCols = [
+  ['漢', '字', 'を', '読', 'む'],
+  ['前', 'に', '強', 'い'],
+];
+
+const isFiveTroubleshooting = data.troubleshooting.length >= 5;
+const topTroubleshooting = isFiveTroubleshooting
+  ? data.troubleshooting.slice(0, 2)
+  : data.troubleshooting;
+const bottomTroubleshooting = isFiveTroubleshooting
+  ? data.troubleshooting.slice(2)
+  : [];
+---
+
+<!-- PAGE 1/2: Overview · Screens · Architecture -->
+<PdfSheet lang={lang} kind="detail" projectSlug={data.slug} pagePart="1" siteUrl={siteUrl}>
+  <!-- Header -->
+  <header class="flex items-start justify-between gap-4 border-b border-line pb-2.5">
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center gap-2 text-[10px] font-medium text-muted">
+        <span class="rounded bg-zinc-900 px-1.5 py-0.5 font-semibold text-white">
+          {t(platformLabelKey(platform))}
+        </span>
+        {period && <span class="tabular-nums">{period}</span>}
+        {role && <span>· {role}</span>}
+        <span class="rounded border border-zinc-200 px-1.5 py-0.5 text-[9.5px] font-semibold text-ink">
+          01 / 02
+        </span>
+      </div>
+      <div class="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+        <h1 class="text-[22px] font-bold leading-tight tracking-tight text-ink">{title}</h1>
+        <p class="text-[11.5px] text-muted">{summary}</p>
+      </div>
+    </div>
+
+    <div class="flex max-w-[330px] shrink-0 flex-col items-end gap-1.5">
+      <div class="flex flex-wrap justify-end gap-1">
+        {stack.map((tech) => (
+          <span class="rounded-md border border-line bg-zinc-50 px-1.5 py-0.5 text-[9.5px] font-medium text-ink">
+            {tech}
+          </span>
+        ))}
+      </div>
+      <div class="flex flex-wrap justify-end gap-2.5 text-[10px] font-medium text-ink">
+        {links?.github && (
+          <a href={links.github} class="underline underline-offset-2">
+            {t('githubLabel')} ↗
+          </a>
+        )}
+        {links?.store && (
+          <a href={links.store} class="underline underline-offset-2">
+            {t('storeLabel')} ↗
+          </a>
+        )}
+        <a href={webProjectUrl} class="underline underline-offset-2">
+          {copy.webDemoLink}
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- KPI Metrics Strip -->
+  <dl class="mt-2.5 grid grid-cols-4 gap-2.5">
+    {data.metrics.map((metric) => (
+      <div class="rounded-xl border border-line bg-zinc-50/70 px-3 py-2">
+        <dd class="text-[16px] font-bold leading-tight tracking-tight text-ink">
+          {metric.value}
+        </dd>
+        <dt class="mt-0.5 text-[10px] font-medium text-muted">
+          {metric.label}
+          {metric.detail && <span class="ml-1 text-[9px] text-muted/80">({metric.detail})</span>}
+        </dt>
+      </div>
+    ))}
+  </dl>
+
+  <!-- Main 2-column Body -->
+  <div class="mt-3 grid min-h-0 flex-1 grid-cols-[0.92fr_1.18fr] gap-3.5">
+    <!-- Left Column: Background + Architecture Flow -->
+    <div class="flex min-h-0 flex-col gap-3">
+      <section class="rounded-xl border border-line bg-white p-3">
+        <h2 class="text-[11px] font-bold tracking-tight text-ink">{data.backgroundTitle}</h2>
+        <p class="mt-1.5 text-[10.5px] leading-[1.55] text-muted">{data.backgroundBody}</p>
+        <div class="mt-2 rounded-r-lg border-l-2 border-zinc-900 bg-zinc-50 px-2.5 py-1.5">
+          <span class="text-[9.5px] font-bold text-ink">{data.goalLabel}</span>
+          <p class="mt-0.5 text-[10px] leading-[1.45] text-muted">{data.goalBody}</p>
+        </div>
+      </section>
+
+      <section class="flex min-h-0 flex-1 flex-col rounded-xl border border-line bg-white p-3">
+        <h2 class="text-[11px] font-bold tracking-tight text-ink">{data.architectureTitle}</h2>
+        <p class="mt-1 text-[10px] leading-[1.45] text-muted">{data.architectureSummary}</p>
+        <ol
+          class:list={[
+            'mt-2 grid flex-1 content-start gap-1.5',
+            data.architectureSteps.length > 5 ? 'grid-cols-2' : 'grid-cols-2',
+          ]}
+        >
+          {data.architectureSteps.map((step, index) => (
+            <li
+              class:list={[
+                'rounded-lg border border-line bg-zinc-50/70 px-2.5 py-1.5',
+                data.architectureSteps.length % 2 === 1 &&
+                  index === data.architectureSteps.length - 1 &&
+                  'col-span-2',
+              ]}
+            >
+              <div class="flex items-baseline gap-1.5">
+                <span class="text-[9px] font-bold tabular-nums text-muted">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <strong class="text-[10.5px] font-semibold text-ink">{step.title}</strong>
+              </div>
+              <p class="mt-0.5 text-[9.5px] leading-[1.35] text-muted">{step.detail}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </div>
+
+    <!-- Right Column: Screens + Diagram -->
+    <div class="flex min-h-0 flex-col gap-3">
+      <section class="rounded-xl border border-line bg-zinc-50/60 p-3">
+        <div class="flex items-baseline justify-between gap-2">
+          <h2 class="text-[11px] font-bold tracking-tight text-ink">{data.screensTitle}</h2>
+        </div>
+        <div class="mt-2.5 flex items-start justify-between gap-2">
+          {resolvedScreens.map((screen) => (
+            <PdfMiniPhone src={screen.src} alt={screen.alt} caption={screen.caption} size="sm" />
+          ))}
+        </div>
+      </section>
+
+      <section class="flex min-h-0 flex-1 flex-col justify-between rounded-xl border border-line bg-white p-3">
+        <div>
+          <h2 class="text-[11px] font-bold tracking-tight text-ink">{data.diagramTitle}</h2>
+          <p class="mt-0.5 text-[9.5px] leading-[1.35] text-muted">{data.diagramCaption}</p>
+        </div>
+
+        {data.diagramType === 'image' && diagramSrc && (
+          <div class="mt-1.5 flex min-h-0 flex-1 items-center justify-center rounded-lg bg-zinc-50/70 p-2">
+            <img
+              src={diagramSrc}
+              alt={data.diagramAlt ?? data.diagramTitle}
+              loading="eager"
+              decoding="sync"
+              class="max-h-[152px] w-auto max-w-full object-contain"
+            />
+          </div>
+        )}
+
+        {data.diagramType === 'vertical-stitch' && data.verticalStitchSteps && (
+          <ol class="mt-1.5 grid flex-1 grid-cols-3 gap-2.5">
+            {data.verticalStitchSteps.map((step, index) => (
+              <li class="flex flex-col rounded-lg border border-line bg-zinc-50/70 p-2">
+                <div
+                  class="flex h-[74px] items-center justify-center rounded-md bg-zinc-100 font-medium text-ink"
+                  aria-hidden="true"
+                >
+                  {index === 0 && (
+                    <div class="flex flex-row-reverse gap-2 text-[12px] leading-none">
+                      {verticalStitchCols.map((col) => (
+                        <div class="flex flex-col gap-0.5">
+                          {col.map((c) => <span>{c}</span>)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {index === 1 && (
+                    <div class="flex flex-row-reverse gap-1.5 text-[10px] leading-none">
+                      {verticalStitchCols.map((col) => (
+                        <div class="flex flex-col gap-0.5 rounded border border-zinc-400 p-0.5">
+                          {col.map((c) => (
+                            <span class="flex size-3.5 items-center justify-center rounded-sm border border-dashed border-zinc-500 bg-white">
+                              {c}
+                            </span>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {index === 2 && (
+                    <div class="flex items-center rounded border border-zinc-400 bg-white px-1.5 py-1 text-[10px] leading-none">
+                      {verticalStitchCols.map((col, colIdx) => (
+                        <>
+                          {colIdx > 0 && <span class="mx-1 h-3.5 w-px bg-zinc-400" />}
+                          {col.map((c) => <span>{c}</span>)}
+                        </>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div class="mt-1.5">
+                  <span class="text-[9px] font-bold text-muted">0{index + 1}</span>
+                  <strong class="ml-1 text-[10px] font-semibold text-ink">{step.title}</strong>
+                  <p class="mt-0.5 text-[9px] leading-[1.35] text-muted">{step.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+    </div>
+  </div>
+</PdfSheet>
+
+<!-- PAGE 2/2: Troubleshooting · Verification / Flow · Retrospective -->
+<PdfSheet lang={lang} kind="detail" projectSlug={data.slug} pagePart="2" siteUrl={siteUrl}>
+  <!-- Continuity Header -->
+  <header class="flex items-center justify-between gap-4 border-b border-line pb-2">
+    <div class="flex items-baseline gap-2.5">
+      <h2 class="text-[17px] font-bold tracking-tight text-ink">{title}</h2>
+      <span class="rounded border border-zinc-200 px-1.5 py-0.5 text-[9.5px] font-semibold text-ink">
+        02 / 02
+      </span>
+      <span class="text-[11px] text-muted">{data.page2Subtitle}</span>
+    </div>
+    <a href={webProjectUrl} class="text-[10px] font-medium text-ink underline underline-offset-2">
+      {copy.webDetailLink}
+    </a>
+  </header>
+
+  {!isFiveTroubleshooting ? (
+    <div class="mt-3 flex min-h-0 flex-1 flex-col gap-3">
+      <section class="flex flex-col">
+        <h3 class="text-[11.5px] font-bold tracking-tight text-ink">
+          {data.troubleshootingTitle}
+        </h3>
+        <div class="mt-2 grid grid-cols-3 gap-3">
+          {topTroubleshooting.map((item, idx) => (
+            <article class="flex flex-col rounded-xl border border-line bg-white p-3">
+              <div class="flex items-baseline gap-1.5 border-b border-line pb-1.5">
+                <span class="text-[10px] font-bold tabular-nums text-muted">
+                  0{idx + 1}
+                </span>
+                <h4 class="text-[11px] font-bold leading-snug text-ink">{item.title}</h4>
+              </div>
+              <dl class="mt-2 space-y-1.5 text-[10px] leading-[1.45]">
+                <div>
+                  <dt class="inline font-semibold text-ink">{copy.troubleshootingLabels.problem}: </dt>
+                  <dd class="inline text-muted">{item.problem}</dd>
+                </div>
+                <div>
+                  <dt class="inline font-semibold text-ink">{copy.troubleshootingLabels.cause}: </dt>
+                  <dd class="inline text-muted">{item.cause}</dd>
+                </div>
+                <div>
+                  <dt class="inline font-semibold text-ink">{copy.troubleshootingLabels.solution}: </dt>
+                  <dd class="inline text-muted">{item.solution}</dd>
+                </div>
+                <div class="rounded-md bg-zinc-50 px-2 py-1">
+                  <dt class="inline font-semibold text-ink">{copy.troubleshootingLabels.result}: </dt>
+                  <dd class="inline text-ink/90">{item.result}</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <div class="grid min-h-0 flex-1 grid-cols-[1.28fr_0.92fr] gap-3">
+        <section class="flex min-h-0 flex-col justify-between rounded-xl border border-line bg-white p-3">
+          <h3 class="text-[11px] font-bold tracking-tight text-ink">{data.screenFlowTitle}</h3>
+          {screenFlowSrc && (
+            <div class="my-1.5 flex min-h-0 flex-1 items-center justify-center rounded-lg bg-zinc-50/80 p-2">
+              <img
+                src={screenFlowSrc}
+                alt={data.screenFlowAlt ?? data.screenFlowTitle}
+                loading="eager"
+                decoding="sync"
+                class="max-h-[215px] w-auto max-w-full object-contain"
+              />
+            </div>
+          )}
+          {data.screenFlowBullets && (
+            <ul class="grid grid-cols-2 gap-x-3 gap-y-1 text-[9.5px] leading-[1.4] text-muted">
+              {data.screenFlowBullets.map((bullet) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="mt-1 size-1 shrink-0 rounded-full bg-zinc-500" aria-hidden="true" />
+                  <span>{bullet}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section class="flex min-h-0 flex-col justify-between rounded-xl border border-line bg-zinc-50/70 p-3.5">
+          <div>
+            <h3 class="text-[11px] font-bold tracking-tight text-ink">{data.retrospectiveTitle}</h3>
+            <p class="mt-1.5 text-[10.5px] leading-[1.55] text-muted">
+              {data.retrospectiveSummary}
+            </p>
+          </div>
+          <div class="mt-2.5 border-t border-line pt-2.5">
+            <h4 class="text-[10.5px] font-bold text-ink">{data.nextTitle}</h4>
+            <ul class="mt-1.5 space-y-1 text-[10px] leading-[1.45] text-muted">
+              {data.nextItems.map((next) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="mt-1.5 size-1 shrink-0 rounded-full bg-zinc-900" aria-hidden="true" />
+                  <span>{next}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      </div>
+    </div>
+  ) : (
+    <div class="mt-2.5 flex min-h-0 flex-1 flex-col gap-2.5">
+      <div class="grid grid-cols-[1.12fr_0.98fr] gap-3">
+        {data.verificationRows && data.verificationHeaders && (
+          <section class="rounded-xl border border-line bg-white p-3">
+            <div class="flex items-baseline justify-between gap-2">
+              <h3 class="text-[11px] font-bold tracking-tight text-ink">{data.verificationTitle}</h3>
+            </div>
+            <table class="mt-1.5 w-full border-collapse text-[10px]">
+              <thead>
+                <tr class="border-b border-zinc-300 text-left text-ink">
+                  {data.verificationHeaders.map((h, i) => (
+                    <th class:list={['py-1 font-semibold', i > 0 && 'text-right']}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.verificationRows.map((row) => (
+                  <tr class="border-b border-line last:border-b-0">
+                    <td class="py-1 font-medium text-ink">{row.screen}</td>
+                    <td class="py-1 text-right font-semibold tabular-nums text-ink">{row.before}</td>
+                    <td class="py-1 text-right tabular-nums text-muted">{row.after}</td>
+                    <td class="py-1 text-right tabular-nums text-muted">{row.baseline}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {data.verificationNote && (
+              <p class="mt-1.5 text-[9.5px] leading-[1.4] text-muted">{data.verificationNote}</p>
+            )}
+          </section>
+        )}
+
+        <section class="flex flex-col justify-between rounded-xl border border-line bg-zinc-50/70 p-3">
+          <div>
+            <h3 class="text-[11px] font-bold tracking-tight text-ink">{data.retrospectiveTitle}</h3>
+            <p class="mt-1 text-[10px] leading-[1.45] text-muted">{data.retrospectiveSummary}</p>
+          </div>
+          <div class="mt-2 border-t border-line pt-1.5">
+            <h4 class="text-[10px] font-bold text-ink">{data.nextTitle}</h4>
+            <ul class="mt-1 space-y-0.5 text-[9.5px] leading-[1.4] text-muted">
+              {data.nextItems.map((next) => (
+                <li class="flex items-start gap-1.5">
+                  <span class="mt-1.5 size-1 shrink-0 rounded-full bg-zinc-900" aria-hidden="true" />
+                  <span>{next}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <!-- 5 Troubleshooting items in balanced 2 + 3 rows -->
+      <section class="flex min-h-0 flex-1 flex-col">
+        <h3 class="text-[11px] font-bold tracking-tight text-ink">{data.troubleshootingTitle}</h3>
+        <div class="mt-1.5 grid grid-cols-2 gap-2.5">
+          {topTroubleshooting.map((item, idx) => (
+            <article class="rounded-xl border border-line bg-white px-3 py-2">
+              <div class="flex items-baseline gap-1.5 border-b border-line pb-1">
+                <span class="text-[9.5px] font-bold tabular-nums text-muted">0{idx + 1}</span>
+                <h4 class="text-[10.5px] font-bold text-ink">{item.title}</h4>
+              </div>
+              <dl class="mt-1.5 space-y-1 text-[9.5px] leading-[1.4]">
+                <div>
+                  <dt class="inline font-semibold text-ink">{copy.troubleshootingLabels.problem}: </dt>
+                  <dd class="inline text-muted">{item.problem} ({item.cause})</dd>
+                </div>
+                <div>
+                  <dt class="inline font-semibold text-ink">{copy.troubleshootingLabels.solution}: </dt>
+                  <dd class="inline text-muted">{item.solution}</dd>
+                </div>
+                <div class="rounded bg-zinc-50 px-1.5 py-0.5">
+                  <dt class="inline font-semibold text-ink">{copy.troubleshootingLabels.result}: </dt>
+                  <dd class="inline text-ink/90">{item.result}</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+
+        <div class="mt-2.5 grid min-h-0 flex-1 grid-cols-3 gap-2.5">
+          {bottomTroubleshooting.map((item, idx) => (
+            <article class="flex flex-col rounded-xl border border-line bg-white px-2.5 py-2">
+              <div class="flex items-baseline gap-1.5 border-b border-line pb-1">
+                <span class="text-[9.5px] font-bold tabular-nums text-muted">0{idx + 3}</span>
+                <h4 class="text-[10px] font-bold leading-snug text-ink">{item.title}</h4>
+              </div>
+              <dl class="mt-1.5 space-y-1 text-[9.5px] leading-[1.38]">
+                <div>
+                  <dt class="inline font-semibold text-ink">{copy.troubleshootingLabels.problem}: </dt>
+                  <dd class="inline text-muted">{item.problem}</dd>
+                </div>
+                <div>
+                  <dt class="inline font-semibold text-ink">{copy.troubleshootingLabels.solution}: </dt>
+                  <dd class="inline text-muted">{item.solution}</dd>
+                </div>
+                <div class="rounded bg-zinc-50 px-1.5 py-0.5">
+                  <dt class="inline font-semibold text-ink">{copy.troubleshootingLabels.result}: </dt>
+                  <dd class="inline text-ink/90">{item.result}</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+  )}
+</PdfSheet>

@@ -1,0 +1,741 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import PdfProfileSheet from '../../components/pdf/PdfProfileSheet.astro';
+import PdfSpreadSheet from '../../components/pdf/PdfSpreadSheet.astro';
+import PdfSingleProjectSheet from '../../components/pdf/PdfSingleProjectSheet.astro';
+import PdfSummaryCard from '../../components/pdf/PdfSummaryCard.astro';
+import PdfSheet from '../../components/pdf/PdfSheet.astro';
+import {
+  pdfPresets,
+  pdfProjectDetails,
+  pdfUiCopy,
+} from '../../data/pdfPortfolio';
+import type { Lang } from '../../i18n/ui';
+import { isLang, locales, otherLang, useTranslations } from '../../i18n/utils';
+import { getProjectsByLang, platformLabelKey, projectSlug } from '../../lib/projects';
+import '../../styles/global.css';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang: langParam } = Astro.params;
+
+if (!langParam || !isLang(langParam)) {
+  return Astro.redirect('/404');
+}
+
+const lang: Lang = langParam;
+const t = useTranslations(lang);
+const copy = pdfUiCopy[lang];
+const presets = pdfPresets[lang];
+const detailsMap = pdfProjectDetails[lang];
+const projects = await getProjectsByLang(lang);
+const siteUrl = (Astro.site?.href ?? 'https://khc1104.github.io').replace(/\/$/, '');
+const homeHref = getRelativeLocaleUrl(lang, '/');
+const nextLang = otherLang(lang);
+const switchHref = getRelativeLocaleUrl(nextLang, '/pdf/');
+
+const projectMetaList = projects
+  .map((entry) => {
+    const slug = projectSlug(entry.id);
+    const detail = detailsMap[slug];
+    if (!detail) return null;
+    return {
+      slug,
+      title: entry.data.title,
+      platform: t(platformLabelKey(entry.data.platform)),
+      period: entry.data.period ?? '',
+      detailPages: detail.kind === 'spread' ? 2 : 1,
+      entry,
+      detail,
+    };
+  })
+  .filter((item): item is NonNullable<typeof item> => item !== null);
+
+const clientConfig = {
+  lang,
+  defaultPreset: 'ios',
+  presets,
+  allSlugs: projectMetaList.map((p) => p.slug),
+  detailPageCount: Object.fromEntries(projectMetaList.map((p) => [p.slug, p.detailPages])),
+  copy: {
+    pagesUnit: copy.pagesUnit,
+    formatLabel: copy.formatLabel,
+    copyLinkButton: copy.copyLinkButton,
+    copiedLinkButton: copy.copiedLinkButton,
+    pageLabel: copy.pageLabel,
+  },
+};
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{copy.pageTitle} · {t('siteName')}</title>
+    <meta name="description" content={copy.pageDescription} />
+    <meta name="robots" content="noindex" />
+  </head>
+  <body class="min-h-screen bg-zinc-200/90 text-ink antialiased">
+    <!-- Interactive Builder Toolbar (hidden on print) -->
+    <header class="pdf-toolbar sticky top-0 z-30 border-b border-zinc-300 bg-white/95 shadow-sm backdrop-blur print:hidden">
+      <div class="mx-auto max-w-[1200px] space-y-3 px-4 py-3">
+        <!-- Top row: nav + presets + primary export actions -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <a
+              href={homeHref}
+              class="inline-flex min-h-9 items-center gap-1 rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-ink transition-colors hover:border-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700"
+            >
+              <span aria-hidden="true">←</span>
+              <span>{copy.backToSite}</span>
+            </a>
+            <div>
+              <h1 class="text-sm font-bold tracking-tight text-ink">{copy.toolbarTitle}</h1>
+              <p class="text-xs text-muted">{copy.toolbarHint}</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <span
+              class="inline-flex min-h-9 items-center rounded-full bg-zinc-100 px-3 text-xs font-semibold tabular-nums text-ink"
+              data-total-pages-badge
+            >
+              6 {copy.pagesUnit} · {copy.formatLabel}
+            </span>
+            <a
+              href={switchHref}
+              hreflang={nextLang}
+              lang={nextLang}
+              class="inline-flex min-h-9 items-center rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-muted transition-colors hover:border-zinc-500 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700"
+            >
+              {t('langSwitch')}
+            </a>
+            <button
+              type="button"
+              data-copy-link
+              class="inline-flex min-h-9 cursor-pointer items-center rounded-full border border-zinc-300 bg-white px-3.5 text-xs font-medium text-ink transition-colors hover:border-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700"
+            >
+              {copy.copyLinkButton}
+            </button>
+            <button
+              type="button"
+              data-print-button
+              class="inline-flex min-h-9 cursor-pointer items-center rounded-full bg-zinc-900 px-4 text-xs font-semibold text-white transition-colors hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {copy.printButton}
+            </button>
+          </div>
+        </div>
+
+        <!-- Middle row: presets + profile toggle -->
+        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-200 pt-2.5">
+          <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label={copy.presetsLabel}>
+            <span class="mr-1 text-xs font-semibold text-muted">{copy.presetsLabel}</span>
+            {presets.map((preset) => (
+              <button
+                type="button"
+                data-preset-btn={preset.id}
+                title={preset.description}
+                class="inline-flex min-h-8 cursor-pointer items-center rounded-full border border-zinc-300 bg-white px-3 text-xs font-medium text-ink transition-colors hover:border-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-700 data-[active=true]:border-zinc-900 data-[active=true]:bg-zinc-900 data-[active=true]:text-white"
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+
+          <label class="inline-flex min-h-8 cursor-pointer items-center gap-2 rounded-full border border-zinc-300 bg-zinc-50 px-3 text-xs font-medium text-ink select-none">
+            <input
+              type="checkbox"
+              checked
+              data-profile-toggle
+              class="size-3.5 accent-zinc-900"
+            />
+            <span>{copy.includeProfileLabel}</span>
+          </label>
+        </div>
+
+        <!-- Bottom row: selectable & reorderable project controls -->
+        <div class="border-t border-zinc-200 pt-2.5">
+          <p class="mb-2 text-[11px] font-semibold text-muted">{copy.projectsSectionLabel}</p>
+          <div
+            class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"
+            data-project-controls
+          >
+            {projectMetaList.map((item) => (
+              <div
+                class="flex items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-zinc-50/70 px-2.5 py-1.5"
+                data-control-row={item.slug}
+              >
+                <div class="flex min-w-0 items-center gap-1.5">
+                  <div class="flex flex-col">
+                    <button
+                      type="button"
+                      data-move-up={item.slug}
+                      aria-label={`${item.title} ${copy.moveUpLabel}`}
+                      class="flex size-4 cursor-pointer items-center justify-center rounded text-[10px] leading-none text-muted hover:bg-zinc-200 hover:text-ink"
+                    >
+                      ▲
+                    </button>
+                    <button
+                      type="button"
+                      data-move-down={item.slug}
+                      aria-label={`${item.title} ${copy.moveDownLabel}`}
+                      class="flex size-4 cursor-pointer items-center justify-center rounded text-[10px] leading-none text-muted hover:bg-zinc-200 hover:text-ink"
+                    >
+                      ▼
+                    </button>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-baseline gap-1">
+                      <span class="truncate text-xs font-semibold text-ink">{item.title}</span>
+                      <span class="shrink-0 text-[10px] text-muted">
+                        ({item.detailPages === 2 ? copy.detailPagesTag2 : copy.detailPagesTag1})
+                      </span>
+                    </div>
+                    <span class="block truncate text-[10px] text-muted">{item.platform}</span>
+                  </div>
+                </div>
+
+                <div
+                  class="inline-flex shrink-0 overflow-hidden rounded-lg border border-zinc-300 bg-white text-[11px]"
+                  role="group"
+                  aria-label={item.title}
+                >
+                  <button
+                    type="button"
+                    data-mode-btn={item.slug}
+                    data-mode="detail"
+                    class="min-h-7 cursor-pointer px-2 font-medium text-muted transition-colors hover:text-ink data-[active=true]:bg-zinc-900 data-[active=true]:text-white"
+                  >
+                    {copy.modeDetail}
+                  </button>
+                  <button
+                    type="button"
+                    data-mode-btn={item.slug}
+                    data-mode="summary"
+                    class="min-h-7 cursor-pointer border-x border-zinc-200 px-2 font-medium text-muted transition-colors hover:text-ink data-[active=true]:bg-zinc-700 data-[active=true]:text-white"
+                  >
+                    {copy.modeSummary}
+                  </button>
+                  <button
+                    type="button"
+                    data-mode-btn={item.slug}
+                    data-mode="off"
+                    class="min-h-7 cursor-pointer px-2 font-medium text-muted transition-colors hover:text-ink data-[active=true]:bg-zinc-200 data-[active=true]:text-ink"
+                  >
+                    {copy.modeOff}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sheet Canvas -->
+    <main class="pdf-workspace overflow-x-auto px-4 py-8 print:overflow-visible print:p-0">
+      <div class="pdf-stack mx-auto flex w-fit flex-col items-center gap-6 print:block print:w-auto">
+        <!-- Empty state (only shown if nothing is selected) -->
+        <p
+          class="hidden rounded-2xl border border-zinc-300 bg-white px-6 py-10 text-center text-sm text-muted print:hidden"
+          data-empty-state
+        >
+          {copy.emptyState}
+        </p>
+
+        <!-- Profile Sheet (Page 1) -->
+        <PdfProfileSheet lang={lang} projects={projects} siteUrl={siteUrl} />
+
+        <!-- Detail Sheets Host (reordered & toggled dynamically) -->
+        <div class="contents" data-detail-sheets-host>
+          {projectMetaList.map((item) =>
+            item.detail.kind === 'spread' ? (
+              <PdfSpreadSheet
+                lang={lang}
+                entry={item.entry}
+                data={item.detail}
+                siteUrl={siteUrl}
+              />
+            ) : (
+              <PdfSingleProjectSheet
+                lang={lang}
+                entry={item.entry}
+                data={item.detail}
+                siteUrl={siteUrl}
+              />
+            ),
+          )}
+        </div>
+
+        <!-- Dynamically paginated Summary Sheets Host (4 cards per sheet) -->
+        <div class="contents" data-summary-sheets-host></div>
+      </div>
+
+      <!-- Hidden Template & Card Pool for Summary Pagination -->
+      <template data-summary-sheet-template>
+        <PdfSheet lang={lang} kind="summary" siteUrl={siteUrl}>
+          <header class="flex items-baseline justify-between gap-4 border-b border-line pb-2.5">
+            <div class="flex items-baseline gap-2.5">
+              <h1 class="text-[20px] font-bold tracking-tight text-ink" data-summary-heading>
+                {copy.summarySheetTitle}
+              </h1>
+              <span class="text-[11px] text-muted">{copy.summarySheetSubtitle}</span>
+            </div>
+            <span
+              class="rounded border border-zinc-200 px-1.5 py-0.5 text-[9.5px] font-semibold text-ink"
+              data-summary-part-badge
+            >
+              01 / 01
+            </span>
+          </header>
+          <div
+            class="mt-3.5 grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-3.5"
+            data-summary-grid
+          >
+          </div>
+        </PdfSheet>
+      </template>
+
+      <div class="hidden" aria-hidden="true" data-summary-card-pool>
+        {projectMetaList.map((item) => (
+          <PdfSummaryCard
+            lang={lang}
+            entry={item.entry}
+            detail={item.detail}
+            siteUrl={siteUrl}
+          />
+        ))}
+      </div>
+    </main>
+
+    <script is:inline define:vars={{ clientConfig }}>
+      (() => {
+        const { presets, allSlugs, detailPageCount, copy } = clientConfig;
+        const presetById = Object.fromEntries(presets.map((p) => [p.id, p]));
+
+        const state = {
+          includeProfile: true,
+          order: [...allSlugs],
+          modes: Object.fromEntries(allSlugs.map((slug) => [slug, 'off'])),
+        };
+
+        function applyPreset(presetId) {
+          const preset = presetById[presetId] ?? presets[0];
+          if (!preset) return;
+          state.includeProfile = preset.includeProfile;
+          const ordered = [
+            ...preset.detail.filter((s) => allSlugs.includes(s)),
+            ...preset.summary.filter((s) => allSlugs.includes(s)),
+          ];
+          for (const slug of allSlugs) {
+            if (!ordered.includes(slug)) ordered.push(slug);
+          }
+          state.order = ordered;
+          for (const slug of allSlugs) {
+            if (preset.detail.includes(slug)) state.modes[slug] = 'detail';
+            else if (preset.summary.includes(slug)) state.modes[slug] = 'summary';
+            else state.modes[slug] = 'off';
+          }
+        }
+
+        function initFromQuery() {
+          const params = new URLSearchParams(window.location.search);
+          const presetParam = params.get('preset');
+          const detailParam = params.get('detail');
+          const summaryParam = params.get('summary');
+          const profileParam = params.get('profile');
+
+          if (detailParam !== null || summaryParam !== null || profileParam !== null) {
+            applyPreset(presetParam && presetById[presetParam] ? presetParam : 'ios');
+            if (profileParam !== null) {
+              state.includeProfile = profileParam !== '0' && profileParam !== 'false';
+            }
+            if (detailParam !== null || summaryParam !== null) {
+              const detailList = (detailParam ?? '')
+                .split(',')
+                .map((s) => s.trim())
+                .filter((s) => allSlugs.includes(s));
+              const summaryList = (summaryParam ?? '')
+                .split(',')
+                .map((s) => s.trim())
+                .filter((s) => allSlugs.includes(s) && !detailList.includes(s));
+
+              const ordered = [...detailList, ...summaryList];
+              for (const slug of allSlugs) {
+                if (!ordered.includes(slug)) ordered.push(slug);
+              }
+              state.order = ordered;
+              for (const slug of allSlugs) {
+                if (detailList.includes(slug)) state.modes[slug] = 'detail';
+                else if (summaryList.includes(slug)) state.modes[slug] = 'summary';
+                else state.modes[slug] = 'off';
+              }
+            }
+            return;
+          }
+
+          applyPreset(presetParam && presetById[presetParam] ? presetParam : 'ios');
+        }
+
+        function syncQueryUrl() {
+          const detailSlugs = state.order.filter((s) => state.modes[s] === 'detail');
+          const summarySlugs = state.order.filter((s) => state.modes[s] === 'summary');
+          const params = new URLSearchParams();
+          params.set('profile', state.includeProfile ? '1' : '0');
+          params.set('detail', detailSlugs.join(','));
+          params.set('summary', summarySlugs.join(','));
+          const nextUrl = `${window.location.pathname}?${params.toString()}`;
+          window.history.replaceState(null, '', nextUrl);
+        }
+
+        function matchesPreset(preset) {
+          if (state.includeProfile !== preset.includeProfile) return false;
+          const detailSlugs = state.order.filter((s) => state.modes[s] === 'detail');
+          const summarySlugs = state.order.filter((s) => state.modes[s] === 'summary');
+          return (
+            detailSlugs.join(',') === preset.detail.join(',') &&
+            summarySlugs.join(',') === preset.summary.join(',')
+          );
+        }
+
+        const controlsHost = document.querySelector('[data-project-controls]');
+        const profileToggle = document.querySelector('[data-profile-toggle]');
+        const profileSheet = document.querySelector('[data-pdf-sheet][data-kind="profile"]');
+        const detailHost = document.querySelector('[data-detail-sheets-host]');
+        const summaryHost = document.querySelector('[data-summary-sheets-host]');
+        const summaryTemplate = document.querySelector('[data-summary-sheet-template]');
+        const summaryPool = document.querySelector('[data-summary-card-pool]');
+        const totalBadge = document.querySelector('[data-total-pages-badge]');
+        const printButton = document.querySelector('[data-print-button]');
+        const copyButton = document.querySelector('[data-copy-link]');
+        const emptyState = document.querySelector('[data-empty-state]');
+        const profileIndexList = document.querySelector('[data-profile-index-list]');
+        const profileEmptyIndex = document.querySelector('[data-profile-empty-index]');
+        const indexCountEl = document.querySelector('[data-index-count]');
+
+        // Keep stable references to detail sheets per slug
+        const detailSheetsBySlug = new Map();
+        for (const slug of allSlugs) {
+          const sheets = Array.from(
+            detailHost.querySelectorAll(`[data-pdf-sheet][data-project="${slug}"]`),
+          );
+          detailSheetsBySlug.set(slug, sheets);
+        }
+
+        // Keep stable references to summary card clones per slug
+        const summaryCardsBySlug = new Map();
+        for (const slug of allSlugs) {
+          const card = summaryPool.querySelector(`[data-summary-card="${slug}"]`);
+          if (card) summaryCardsBySlug.set(slug, card);
+        }
+
+        // Keep stable references to control rows & profile index rows
+        const controlRowsBySlug = new Map();
+        const indexItemsBySlug = new Map();
+        for (const slug of allSlugs) {
+          const row = controlsHost.querySelector(`[data-control-row="${slug}"]`);
+          if (row) controlRowsBySlug.set(slug, row);
+          const idxItem = profileIndexList?.querySelector(`[data-index-item="${slug}"]`);
+          if (idxItem) indexItemsBySlug.set(slug, idxItem);
+        }
+
+        function render() {
+          // 1. Update toolbar control order & active buttons
+          for (const slug of state.order) {
+            const row = controlRowsBySlug.get(slug);
+            if (row) {
+              controlsHost.appendChild(row);
+              const mode = state.modes[slug];
+              row.querySelectorAll('[data-mode-btn]').forEach((btn) => {
+                btn.dataset.active = String(btn.dataset.mode === mode);
+              });
+            }
+          }
+
+          if (profileToggle) {
+            profileToggle.checked = state.includeProfile;
+          }
+
+          document.querySelectorAll('[data-preset-btn]').forEach((btn) => {
+            const preset = presetById[btn.dataset.presetBtn];
+            btn.dataset.active = String(Boolean(preset && matchesPreset(preset)));
+          });
+
+          // 2. Profile sheet visibility
+          if (profileSheet) {
+            profileSheet.classList.toggle('is-hidden', !state.includeProfile);
+          }
+
+          // 3. Reorder & toggle detail sheets
+          const detailSlugs = state.order.filter((s) => state.modes[s] === 'detail');
+          const summarySlugs = state.order.filter((s) => state.modes[s] === 'summary');
+
+          for (const slug of state.order) {
+            const sheets = detailSheetsBySlug.get(slug) ?? [];
+            const show = state.modes[slug] === 'detail';
+            for (const sheet of sheets) {
+              sheet.classList.toggle('is-hidden', !show);
+              detailHost.appendChild(sheet);
+            }
+          }
+
+          // 4. Rebuild summary sheets (max 4 cards per A4 landscape sheet)
+          summaryHost.innerHTML = '';
+          const summaryChunks = [];
+          for (let i = 0; i < summarySlugs.length; i += 4) {
+            summaryChunks.push(summarySlugs.slice(i, i + 4));
+          }
+
+          summaryChunks.forEach((chunk, chunkIdx) => {
+            const fragment = summaryTemplate.content.cloneNode(true);
+            const sheet = fragment.querySelector('[data-pdf-sheet]');
+            const grid = fragment.querySelector('[data-summary-grid]');
+            const partBadge = fragment.querySelector('[data-summary-part-badge]');
+
+            if (summaryChunks.length > 1) {
+              partBadge.textContent = `${String(chunkIdx + 1).padStart(2, '0')} / ${String(summaryChunks.length).padStart(2, '0')}`;
+              partBadge.classList.remove('hidden');
+            } else {
+              partBadge.classList.add('hidden');
+            }
+
+            for (const slug of chunk) {
+              const sourceCard = summaryCardsBySlug.get(slug);
+              if (sourceCard) {
+                grid.appendChild(sourceCard.cloneNode(true));
+              }
+            }
+
+            sheet.dataset.summaryPageIndex = String(chunkIdx);
+            summaryHost.appendChild(fragment);
+          });
+
+          // 5. Compute exact page numbers for all visible sheets
+          const allVisibleSheets = Array.from(
+            document.querySelectorAll('[data-pdf-sheet]:not(.is-hidden)'),
+          );
+          const totalPages = allVisibleSheets.length;
+          const pad = (n) => String(n).padStart(2, '0');
+
+          // Track start/end page per project for Profile Index
+          const projectPageRange = new Map();
+
+          allVisibleSheets.forEach((sheet, idx) => {
+            const pageNum = idx + 1;
+            const counter = sheet.querySelector('[data-page-counter]');
+            if (counter) {
+              counter.textContent = `${pad(pageNum)} / ${pad(totalPages)}`;
+            }
+            sheet.classList.toggle('is-last-sheet', idx === totalPages - 1);
+
+            if (sheet.dataset.kind === 'detail' && sheet.dataset.project) {
+              const slug = sheet.dataset.project;
+              const existing = projectPageRange.get(slug);
+              if (!existing) {
+                projectPageRange.set(slug, { start: pageNum, end: pageNum });
+              } else {
+                existing.end = pageNum;
+              }
+            }
+
+            if (sheet.dataset.kind === 'summary') {
+              const chunkIdx = Number(sheet.dataset.summaryPageIndex ?? '0');
+              const slugsInChunk = summaryChunks[chunkIdx] ?? [];
+              for (const slug of slugsInChunk) {
+                projectPageRange.set(slug, { start: pageNum, end: pageNum });
+              }
+            }
+          });
+
+          // 6. Update Profile Sheet dynamic index list
+          if (profileIndexList) {
+            const activeSlugs = [...detailSlugs, ...summarySlugs];
+            profileIndexList.classList.toggle('space-y-1.5', activeSlugs.length >= 6);
+            profileIndexList.classList.toggle('space-y-2', activeSlugs.length < 6);
+
+            for (const slug of allSlugs) {
+              const item = indexItemsBySlug.get(slug);
+              if (!item) continue;
+              const isIncluded = activeSlugs.includes(slug);
+              item.classList.toggle('hidden', !isIncluded);
+            }
+
+            for (const slug of activeSlugs) {
+              const item = indexItemsBySlug.get(slug);
+              if (!item) continue;
+              profileIndexList.appendChild(item);
+
+              const badge = item.querySelector('[data-index-mode-badge]');
+              if (badge) {
+                badge.textContent =
+                  state.modes[slug] === 'detail'
+                    ? badge.dataset.detailLabel
+                    : badge.dataset.summaryLabel;
+              }
+
+              const refEl = item.querySelector('[data-index-page-ref]');
+              const range = projectPageRange.get(slug);
+              if (refEl && range) {
+                refEl.textContent =
+                  range.start === range.end
+                    ? `${copy.pageLabel}${pad(range.start)}`
+                    : `${copy.pageLabel}${pad(range.start)}–${pad(range.end)}`;
+              }
+            }
+
+            if (profileEmptyIndex) {
+              profileEmptyIndex.classList.toggle('hidden', activeSlugs.length > 0);
+            }
+            if (indexCountEl) {
+              indexCountEl.textContent = `${activeSlugs.length} / ${allSlugs.length}`;
+            }
+          }
+
+          // 7. Update toolbar summary & empty state
+          if (totalBadge) {
+            totalBadge.textContent = `${totalPages} ${copy.pagesUnit} · ${copy.formatLabel}`;
+          }
+          if (printButton) {
+            printButton.disabled = totalPages === 0;
+          }
+          if (emptyState) {
+            emptyState.classList.toggle('hidden', totalPages > 0);
+          }
+
+          syncQueryUrl();
+        }
+
+        // Event bindings
+        document.querySelectorAll('[data-preset-btn]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            applyPreset(btn.dataset.presetBtn);
+            render();
+          });
+        });
+
+        profileToggle?.addEventListener('change', () => {
+          state.includeProfile = profileToggle.checked;
+          render();
+        });
+
+        controlsHost?.addEventListener('click', (event) => {
+          const target = event.target.closest('button');
+          if (!target) return;
+
+          if (target.dataset.modeBtn) {
+            state.modes[target.dataset.modeBtn] = target.dataset.mode;
+            render();
+            return;
+          }
+
+          if (target.dataset.moveUp) {
+            const idx = state.order.indexOf(target.dataset.moveUp);
+            if (idx > 0) {
+              [state.order[idx - 1], state.order[idx]] = [state.order[idx], state.order[idx - 1]];
+              render();
+            }
+            return;
+          }
+
+          if (target.dataset.moveDown) {
+            const idx = state.order.indexOf(target.dataset.moveDown);
+            if (idx >= 0 && idx < state.order.length - 1) {
+              [state.order[idx], state.order[idx + 1]] = [state.order[idx + 1], state.order[idx]];
+              render();
+            }
+          }
+        });
+
+        printButton?.addEventListener('click', () => {
+          window.print();
+        });
+
+        copyButton?.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(window.location.href);
+            copyButton.textContent = copy.copiedLinkButton;
+            setTimeout(() => {
+              copyButton.textContent = copy.copyLinkButton;
+            }, 1800);
+          } catch {
+            // Clipboard may be unavailable in non-HTTPS contexts
+          }
+        });
+
+        initFromQuery();
+        render();
+      })();
+    </script>
+
+    <style is:global>
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+
+      .pdf-sheet {
+        width: 297mm;
+        height: 210mm;
+        padding: 10mm 12mm 8mm 12mm;
+        box-sizing: border-box;
+        border-radius: 0.75rem;
+        box-shadow:
+          0 12px 32px -12px rgb(24 24 27 / 0.18),
+          0 2px 6px -1px rgb(24 24 27 / 0.08);
+      }
+
+      .pdf-sheet.is-hidden {
+        display: none !important;
+      }
+
+      @media print {
+        html,
+        body {
+          background: #ffffff !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        .pdf-toolbar {
+          display: none !important;
+        }
+
+        .pdf-workspace {
+          overflow: visible !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+
+        .pdf-stack {
+          display: block !important;
+          gap: 0 !important;
+          margin: 0 !important;
+          width: auto !important;
+        }
+
+        .pdf-sheet {
+          width: 297mm !important;
+          height: 209.6mm !important;
+          margin: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          break-inside: avoid;
+          break-after: page;
+          page-break-after: always;
+        }
+
+        .pdf-sheet.is-last-sheet {
+          break-after: auto !important;
+          page-break-after: auto !important;
+        }
+      }
+    </style>
+  </body>
+</html>

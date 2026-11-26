@@ -1,0 +1,62 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  size?: 'xs' | 'sm' | 'md';
+}
+
+const { src, alt, caption, size = 'sm' } = Astro.props;
+
+const widthClass =
+  size === 'xs' ? 'w-[86px]' : size === 'md' ? 'w-[146px]' : 'w-[112px]';
+const bezelClass =
+  size === 'xs'
+    ? 'rounded-[14px] p-[3px]'
+    : size === 'md'
+      ? 'rounded-[22px] p-[5px]'
+      : 'rounded-[18px] p-[4px]';
+const screenClass =
+  size === 'xs' ? 'rounded-[11px]' : size === 'md' ? 'rounded-[17px]' : 'rounded-[14px]';
+const islandClass =
+  size === 'xs'
+    ? 'top-[5px] h-[6px] w-[26px]'
+    : size === 'md'
+      ? 'top-[9px] h-[9px] w-[42px]'
+      : 'top-[7px] h-[8px] w-[34px]';
+const homeClass =
+  size === 'xs'
+    ? 'bottom-[4px] h-[2px] w-[28px]'
+    : size === 'md'
+      ? 'bottom-[7px] h-[3px] w-[48px]'
+      : 'bottom-[6px] h-[2.5px] w-[38px]';
+---
+
+<figure class="flex shrink-0 flex-col items-center gap-1.5">
+  <div class:list={['relative aspect-[9/19.5] overflow-hidden bg-device shadow-sm', widthClass, bezelClass]}>
+    <div
+      class:list={['absolute left-1/2 z-10 -translate-x-1/2 rounded-full bg-device', islandClass]}
+      aria-hidden="true"
+    >
+    </div>
+    <div class:list={['h-full w-full overflow-hidden bg-device-screen', screenClass]}>
+      <img
+        src={src}
+        alt={alt}
+        loading="eager"
+        decoding="sync"
+        class="h-full w-full object-cover"
+      />
+    </div>
+    <div
+      class:list={['absolute left-1/2 -translate-x-1/2 rounded-full bg-zinc-500/80', homeClass]}
+      aria-hidden="true"
+    >
+    </div>
+  </div>
+  {caption && (
+    <figcaption class="text-center text-[10px] font-medium leading-tight text-muted">
+      {caption}
+    </figcaption>
+  )}
+</figure>
